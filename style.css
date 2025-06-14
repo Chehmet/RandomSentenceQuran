@@ -77,10 +77,9 @@ body {
 
 .site-header {
     display: flex; 
-    justify-content: center; 
+    justify-content: space-between; 
     align-items: center; 
     position: relative; 
-    text-align: center; 
     margin-bottom: 30px;
     color: var(--accent-color);
     transition: var(--theme-transition);
@@ -89,22 +88,25 @@ body {
 .site-title { 
     font-family: var(--font-ui);
     font-weight: 700;
-    font-size: clamp(1.8em, 5vw, 2.2em);
+    font-size: clamp(1.6em, 4vw, 2.0em);
     margin: 0; 
     display: inline-flex; 
     align-items: center;
+    text-align: center;
+    flex-grow: 1;
+    justify-content: center;
 }
 
 .site-title .fa-quran {
     margin-right: 10px;
 }
 
+.favorites-button,
 .theme-toggle-header {
     background-color: transparent; 
     color: var(--icon-color); 
     border: none; 
     padding: 8px; 
-    margin-left: 15px; 
     font-size: 0.9em; 
     line-height: 1;
     cursor: pointer;
@@ -115,12 +117,21 @@ body {
     width: 36px; 
     height: 36px; 
     transition: background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0; /* Чтобы кнопки не сжимались */
+}
+.favorites-button {
+    margin-right: auto; /* Двигаем кнопку избранного влево */
+}
+.theme-toggle-header {
+    margin-left: auto; /* Двигаем кнопку темы вправо */
 }
 
+.favorites-button:hover,
 .theme-toggle-header:hover {
     background-color: var(--theme-toggle-button-hover-bg); 
 }
 
+.favorites-button i,
 .theme-toggle-header i {
     font-size: 1.2em; 
 }
@@ -221,9 +232,38 @@ body.dark-theme #new-ayah-button:hover {
     transition: opacity 0.5s ease-in-out, var(--theme-transition);
 }
 
+.ayah-main-content {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Уменьшил gap */
+    margin-bottom: 15px;
+}
 #arabic-text-container {
-    text-align: center;
-    margin-bottom: 20px;
+    flex-grow: 1;
+    text-align: center; /* Для центрирования арабского текста */
+}
+.ayah-actions {
+    flex-shrink: 0;
+    align-self: center; /* Выравниваем сердечко по центру арабского текста */
+}
+.favorite-toggle-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--secondary-text-color);
+    font-size: 1.6em; /* Немного уменьшил сердечко */
+    padding: 5px; /* Уменьшил padding */
+    border-radius: 50%;
+    transition: color 0.2s ease, transform 0.2s ease;
+    line-height: 1; /* Чтобы иконка была по центру кнопки */
+}
+.favorite-toggle-button:hover {
+    color: #e91e63; 
+}
+.favorite-toggle-button.favorited .fa-heart {
+    font-weight: 900; 
+    color: #e91e63;
+    transform: scale(1.1);
 }
 
 #arabic-text {
@@ -232,7 +272,7 @@ body.dark-theme #new-ayah-button:hover {
     line-height: 1.8;
     color: var(--arabic-text-color);
     direction: rtl;
-    margin-bottom: 10px;
+    margin: 0; /* Убрал margin-bottom, т.к. отступ теперь у ayah-main-content */
     font-weight: 700;
     transition: var(--theme-transition);
     word-wrap: break-word;
@@ -242,7 +282,7 @@ body.dark-theme #new-ayah-button:hover {
     text-align: center;
     font-size: clamp(0.9em, 2.5vw, 1.1em);
     color: var(--secondary-text-color);
-    margin-bottom: 20px;
+    margin-bottom: 15px; /* Уменьшил отступ */
     font-family: var(--font-ui);
     font-weight: 400;
     transition: var(--theme-transition);
@@ -252,12 +292,12 @@ body.dark-theme #new-ayah-button:hover {
     border: none;
     height: 1px;
     background-color: var(--divider-color);
-    margin: 25px 0;
+    margin: 20px 0; /* Уменьшил отступ */
     transition: var(--theme-transition);
 }
 
 #translation-container {
-    margin-top: 20px;
+    margin-top: 15px; /* Уменьшил отступ */
 }
 
 #translation-text {
@@ -276,7 +316,7 @@ body.dark-theme #new-ayah-button:hover {
 
 .context-button {
     display: block; 
-    margin: 15px auto; 
+    margin: 20px auto; /* Увеличил верхний/нижний отступ */
     padding: 10px 20px;
     background-color: var(--accent-color);
     color: var(--button-text-color);
@@ -378,87 +418,76 @@ body.dark-theme .highlighted-ayah-row {
     border-left-color: var(--accent-color);
 }
 
-.site-footer {
-    text-align: center;
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
-    font-size: 0.9em;
-    color: var(--secondary-text-color);
-    transition: var(--theme-transition);
+.modal {
+    position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+    overflow: auto; background-color: rgba(0,0,0,0.5); display: flex;
+    align-items: center; justify-content: center;
 }
+.modal-content {
+    background-color: var(--card-bg); margin: auto; padding: 25px;
+    border-radius: 12px; width: 90%; max-width: 700px; max-height: 85vh;
+    display: flex; flex-direction: column; box-shadow: 0 10px 30px var(--shadow-color);
+}
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px;
+}
+.modal-header h2 { margin: 0; color: var(--accent-color); }
+.close-modal-button {
+    color: var(--secondary-text-color); background: none; border: none;
+    font-size: 2em; line-height: 1; cursor: pointer; padding: 0 10px;
+}
+.modal-body { overflow-y: auto; }
+.favorite-item { border-bottom: 1px solid var(--divider-color); padding: 15px 0; }
+.favorite-item:last-child { border-bottom: none; }
+.favorite-item-info {
+    font-size: 0.9em; font-weight: bold; color: var(--secondary-text-color); margin-bottom: 10px;
+}
+.favorite-item-arabic {
+    font-family: var(--font-arabic); font-size: 1.5em; text-align: right; direction: rtl;
+    color: var(--arabic-text-color); margin-bottom: 10px;
+}
+.favorite-item-translation {
+    font-family: var(--font-translation); font-style: italic; color: var(--text-color);
+}
+.favorite-item-remove-button {
+    background: none; border: 1px solid #e91e63; color: #e91e63; border-radius: 5px;
+    padding: 5px 10px; font-size: 0.8em; cursor: pointer; float: right;
+    margin-top: 10px; transition: background-color 0.2s, color 0.2s;
+}
+.favorite-item-remove-button:hover { background-color: #e91e63; color: white; }
 
-.site-footer a {
-    color: var(--footer-link-color);
-    text-decoration: none;
-    transition: var(--theme-transition);
+
+.site-footer {
+    text-align: center; margin-top: 40px; padding-top: 20px;
+    border-top: 1px solid var(--border-color); font-size: 0.9em;
+    color: var(--secondary-text-color); transition: var(--theme-transition);
 }
+.site-footer a { color: var(--footer-link-color); text-decoration: none; transition: var(--theme-transition); }
 .site-footer a:hover { text-decoration: underline; }
 .site-footer .fa-heart { transition: color 0.3s ease; }
 
 @media (min-width: 769px) { 
-    .surah-ayah-row {
-        flex-direction: row; 
-        gap: 20px; 
-        align-items: flex-start; 
-    }
-    .surah-ayah-arabic,
-    .surah-ayah-translation {
-        flex: 1; 
-        padding: 0; 
-    }
+    .surah-ayah-row { flex-direction: row; gap: 20px; align-items: flex-start; }
+    .surah-ayah-arabic, .surah-ayah-translation { flex: 1; padding: 0; }
 }
-
 @media (max-width: 768px) { 
-    .site-header {
-        flex-direction: row; 
-        justify-content: space-between; 
-    }
-    .site-title {
-        text-align: left; 
-        flex-grow: 1; 
-    }
-    .theme-toggle-header {
-        margin-left: 10px; 
-    }
-    .controls {
-        align-items: stretch; 
-    }
-    .language-selector-wrapper {
-        flex-basis: 100%; 
-        margin-bottom: 15px; 
-        min-width: 0; 
-    }
-     #new-ayah-button {
-        flex-grow: 1; 
-        flex-basis: 100%; 
-    }
+    .site-header { justify-content: space-between; }
+    .site-title { text-align: left; flex-grow: 1; justify-content: flex-start;}
+    .favorites-button { margin-right: 10px;} /* Отступ от заголовка */
+    .theme-toggle-header { margin-left: 10px; }
+    .controls { align-items: stretch; }
+    .language-selector-wrapper { flex-basis: 100%; margin-bottom: 15px; min-width: 0; }
+    #new-ayah-button { flex-grow: 1; flex-basis: 100%; }
 }
-
 @media (max-width: 480px) { 
-    body { padding: 10px; }
-    .container { padding: 15px; }
-    
-    .site-header .site-title { font-size: clamp(1.5em, 5vw, 1.7em); } 
-    .theme-toggle-header {
-        width: 32px; height: 32px; padding: 6px; margin-left: 8px;
-    }
-     .theme-toggle-header i { font-size: 1em; }
-
-    .controls {
-        flex-direction: column; 
-        align-items: stretch; 
-    }
-    .language-selector-wrapper {
-        margin-bottom: 15px; 
-    }
-    #language-select, #new-ayah-button {
-        width: 100%; 
-        box-sizing: border-box;
-        margin-bottom: 10px;
-        flex-basis: auto;
-        flex-grow: 0; 
-    }
+    body { padding: 10px; } .container { padding: 15px; }
+    .site-title { font-size: clamp(1.4em, 5vw, 1.6em); } 
+    .favorites-button, .theme-toggle-header { width: 32px; height: 32px; padding: 6px; }
+    .favorites-button i, .theme-toggle-header i { font-size: 1em; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .language-selector-wrapper { margin-bottom: 15px; }
+    #language-select, #new-ayah-button { width: 100%; box-sizing: border-box; margin-bottom: 10px; flex-basis: auto; flex-grow: 0; }
     #arabic-text { font-size: clamp(1.8em, 8vw, 2.5em); }
     #translation-text { font-size: clamp(0.9em, 3.5vw, 1.1em); }
     #ayah-info { font-size: clamp(0.8em, 2.8vw, 1em); }

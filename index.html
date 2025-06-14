@@ -13,6 +13,9 @@
 <body>
     <div class="container">
         <header class="site-header">
+            <button id="favorites-button" class="favorites-button" aria-label="Показать избранное" data-localize-aria="showFavoritesAria">
+                <i class="fas fa-bookmark"></i>
+            </button>
             <h1 class="site-title"><i class="fas fa-quran"></i> <span data-localize="headerTitle">آية اليوم - Ayah of the Day</span></h1>
             <button id="theme-toggle-button" class="theme-toggle-header" aria-label="Переключить тему" data-localize-aria="toggleThemeAriaLight">
                 <i class="fas fa-moon"></i>
@@ -33,29 +36,42 @@
         </div>
         
         <main id="ayah-display" class="ayah-card" style="display: none;">
-            <div id="arabic-text-container">
-                <p id="arabic-text" dir="rtl"></p>
+            <div class="ayah-main-content">
+                <div id="arabic-text-container">
+                    <p id="arabic-text" dir="rtl"></p>
+                </div>
+                <div class="ayah-actions">
+                    <button id="favorite-ayah-button" class="favorite-toggle-button" aria-label="Добавить в избранное" data-localize-aria="addToFavoritesAria">
+                        <i class="far fa-heart"></i> <!-- Пустое сердечко -->
+                    </button>
+                </div>
             </div>
             <p id="ayah-info"></p>
-            <button id="show-surah-context-button" class="context-button" style="display: none;" data-localize="showSurahContextButton">Показать контекст суры</button>
             <hr class="divider">
             <div id="translation-container">
                 <p id="translation-text"></p>
             </div>
+            <button id="show-surah-context-button" class="context-button" style="display: none;" data-localize="showSurahContextButton">Показать контекст суры (текущий аят будет выделен)</button>
         </main>
 
         <section id="surah-context-display" class="surah-context-card" style="display: none;">
             <h2 data-localize="surahContextTitle">Контекст Суры</h2>
             <p id="surah-context-info" class="surah-context-message"></p>
-            <div class="surah-content" id="surah-content-dynamic-area">
-                
-            </div>
+            <div class="surah-content" id="surah-content-dynamic-area"></div>
             <button id="hide-surah-context-button" class="context-button" data-localize="hideSurahContextButton">Скрыть контекст</button>
         </section>
-
-        <footer class="site-footer">
-            <p><span data-localize="createdBy">Создано с</span> <i class="fas fa-heart" style="color: #e91e63;"></i>. <span data-localize="dataSource">Данные из датасета</span> <a href="https://huggingface.co/datasets/nazimali/quran" target="_blank">nazimali/quran</a>.</p>
-        </footer>
+        
+        <div id="favorites-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <header class="modal-header">
+                    <h2 data-localize="favoritesTitle">Избранные Аяты</h2>
+                    <button id="close-favorites-modal" class="close-modal-button" aria-label="Закрыть" data-localize-aria="closeAria">×</button>
+                </header>
+                <div id="favorites-list" class="modal-body">
+                    <p data-localize="noFavoritesYet">У вас пока нет избранных аятов.</p>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
