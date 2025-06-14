@@ -20,7 +20,7 @@
     --footer-link-color: var(--accent-color);
     --divider-color: var(--border-color);
     --loading-text-color: #777777;
-    --theme-toggle-button-bg: transparent; /* Changed from --card-bg for distinct look */
+    --theme-toggle-button-bg: transparent;
     --theme-toggle-button-hover-bg: rgba(0,0,0,0.05);
     --theme-toggle-button-icon-color: var(--icon-color);
 
@@ -67,7 +67,7 @@ body {
 .container {
     max-width: 800px;
     width: 100%;
-    padding: 25px; /* Немного увеличим внутренние отступы */
+    padding: 25px;
     background-color: var(--container-bg);
     border-radius: 12px;
     box-shadow: 0 8px 25px var(--shadow-color);
@@ -84,7 +84,7 @@ body {
 .site-header h1 {
     font-family: var(--font-ui);
     font-weight: 700;
-    font-size: clamp(1.8em, 5vw, 2.2em); /* Адаптивный размер шрифта */
+    font-size: clamp(1.8em, 5vw, 2.2em);
     margin: 0;
 }
 
@@ -94,31 +94,39 @@ body {
 
 .controls {
     display: flex;
-    flex-wrap: wrap; /* Позволяет переноситься на новую строку на малых экранах */
+    flex-wrap: wrap; 
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end; /* Выравнивание элементов по нижнему краю */
     margin-bottom: 30px;
     gap: 15px;
 }
-.controls label {
-    display: flex; /* Для выравнивания иконки и текста */
-    align-items: center;
-    color: var(--secondary-text-color); /* Используем secondary для label */
-    transition: var(--theme-transition);
-}
-.controls label .fa-language,
-.controls button .fa-sync-alt { /* Для иконки внутри кнопки Новый Аят */
-    margin-right: 8px;
-    /* Цвет иконки уже наследуется или задается специфично для кнопки */
+
+.language-selector-wrapper { /* Обертка для селектора и его метки */
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start; 
+    flex-grow: 1; 
+    flex-basis: 250px; 
 }
 
-/* Иконки в контролах, чтобы они тоже меняли цвет с темой */
-.controls .fa-language {
+.controls label[for="language-select"] {
+    margin-bottom: 5px; 
+    font-size: 0.9em;
+    display: flex; 
+    align-items: center;
+    color: var(--secondary-text-color);
+    transition: var(--theme-transition);
+}
+
+.controls label[for="language-select"] .fa-language { /* Иконка внутри label */
+    margin-right: 8px;
     color: var(--icon-color);
     transition: var(--theme-transition);
 }
 
-#language-select, #new-ayah-button, .theme-toggle {
+
+#language-select {
+    width: 100%; /* Селект занимает всю ширину своей обертки */
     padding: 12px 18px;
     border: 1px solid var(--select-border-color);
     border-radius: 8px;
@@ -127,25 +135,34 @@ body {
     background-color: var(--select-bg);
     color: var(--select-text-color);
     transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-    flex-grow: 0; /* Чтобы кнопки не растягивались некрасиво */
+    box-sizing: border-box; /* Чтобы padding не влиял на width: 100% */
 }
 
-#language-select {
-    min-width: 200px; /* Для десктопа */
-    flex-basis: 250px; /* Базовая ширина для flex */
-    flex-grow: 1; /* Позволяем селекту расти */
+#new-ayah-button, 
+.theme-toggle {
+    padding: 12px 18px;
+    border: 1px solid var(--select-border-color);
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: var(--select-bg); /* Базовый фон для кнопки темы */
+    color: var(--select-text-color); /* Базовый цвет текста/иконки для кнопки темы */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    height: fit-content; /* Важно для align-items: flex-end */
+    box-sizing: border-box;
 }
 
 #new-ayah-button {
     background-color: var(--accent-color);
-    color: var(--button-text-color); /* Явный цвет текста для акцентной кнопки */
+    color: var(--button-text-color); 
     border-color: var(--accent-color);
-    flex-basis: 150px; /* Базовая ширина */
-    flex-grow: 1; /* Позволяем кнопке расти */
+    flex-basis: 180px; /* Дадим немного больше базовой ширины */
+    flex-grow: 0; /* Чтобы не растягивалась слишком сильно */
 }
 
-#new-ayah-button .fa-sync-alt { /* Иконка внутри кнопки */
-    color: var(--button-text-color); /* Чтобы иконка тоже была контрастной */
+#new-ayah-button .fa-sync-alt { 
+    margin-right: 8px;
+    color: var(--button-text-color); 
 }
 
 
@@ -160,12 +177,11 @@ body.dark-theme #new-ayah-button:hover {
 
 .theme-toggle {
     background-color: var(--theme-toggle-button-bg);
-    color: var(--theme-toggle-button-icon-color); /* Цвет иконки */
-    border: 1px solid var(--select-border-color);
-    padding: 10px 14px; /* Чуть больше по бокам для иконки */
-    font-size: 1.1em; /* Размер иконки */
-    line-height: 1;
-    flex-basis: auto; /* Автоматическая ширина по содержимому */
+    color: var(--theme-toggle-button-icon-color); 
+    padding: 12px 14px; /* Немного другие отступы для иконки */
+    font-size: 1.1em; 
+    line-height: 1; /* Для центрирования иконки */
+    flex-basis: auto; 
     flex-grow: 0;
 }
 
@@ -190,7 +206,7 @@ body.dark-theme #new-ayah-button:hover {
 .ayah-card {
     background-color: var(--card-bg);
     border-radius: 12px;
-    padding: clamp(20px, 4vw, 30px); /* Адаптивные внутренние отступы */
+    padding: clamp(20px, 4vw, 30px);
     margin-top: 20px;
     transition: opacity 0.5s ease-in-out, var(--theme-transition);
 }
@@ -202,19 +218,19 @@ body.dark-theme #new-ayah-button:hover {
 
 #arabic-text {
     font-family: var(--font-arabic);
-    font-size: clamp(2em, 7vw, 2.8em); /* Адаптивный размер шрифта для арабского */
+    font-size: clamp(2em, 7vw, 2.8em);
     line-height: 1.8;
     color: var(--arabic-text-color);
     direction: rtl;
     margin-bottom: 10px;
     font-weight: 700;
     transition: var(--theme-transition);
-    word-wrap: break-word; /* Для очень длинных слов без пробелов, если такие встретятся */
+    word-wrap: break-word;
 }
 
 #ayah-info {
     text-align: center;
-    font-size: clamp(0.9em, 2.5vw, 1.1em); /* Адаптивный размер */
+    font-size: clamp(0.9em, 2.5vw, 1.1em);
     color: var(--secondary-text-color);
     margin-bottom: 20px;
     font-family: var(--font-ui);
@@ -236,12 +252,12 @@ body.dark-theme #new-ayah-button:hover {
 
 #translation-text {
     font-family: var(--font-translation);
-    font-size: clamp(1em, 3vw, 1.2em); /* Адаптивный размер */
+    font-size: clamp(1em, 3vw, 1.2em);
     line-height: 1.7;
     color: var(--text-color);
     text-align: left;
     transition: var(--theme-transition);
-    word-wrap: break-word; /* Перенос слов */
+    word-wrap: break-word;
 }
 
 #translation-text[dir="rtl"] {
@@ -267,43 +283,41 @@ body.dark-theme #new-ayah-button:hover {
 .site-footer .fa-heart { transition: color 0.3s ease; }
 
 
-/* Адаптивность для мобильных телефонов */
-@media (max-width: 768px) { /* Более общий брейкпоинт */
+@media (max-width: 768px) { 
     .controls {
-        /* Уже flex-wrap: wrap, что хорошо для мобильных */
-        justify-content: center; /* Центрируем, если не влезают в одну строку */
+        /* align-items: flex-end; все еще может быть хорошо, если они помещаются в ряд */
+        /* Если нет, можно поменять на align-items: stretch и кнопки будут одинаковой высоты */
     }
-    #language-select {
-        min-width: 150px; /* Уменьшаем мин.ширину */
-        flex-basis: 100%; /* Занимает всю ширину, если одна */
-        margin-bottom: 10px; /* Отступ, если переносится */
+    .language-selector-wrapper {
+        flex-basis: 100%; /* Селектор и его метка займут всю ширину, если перенесутся */
+        margin-bottom: 15px; /* Отступ, если кнопки ниже */
     }
-    #new-ayah-button {
-        flex-basis: calc(50% - 10px); /* Например, 2 кнопки в ряд */
-         min-width: 120px;
-    }
-    .theme-toggle {
-        flex-basis: calc(50% - 10px); /* Например, 2 кнопки в ряд */
-        min-width: 50px; /* Для иконки достаточно */
+     #new-ayah-button, .theme-toggle {
+        flex-grow: 1; /* Позволяем кнопкам расти, чтобы занять доступное место */
+        flex-basis: calc(50% - 7.5px); /* Примерно пополам с учетом gap */
     }
 }
 
 
-@media (max-width: 480px) { /* Для очень маленьких экранов */
+@media (max-width: 480px) { 
     body { padding: 10px; }
     .container { padding: 15px; }
 
     .controls {
-        flex-direction: column; /* Все элементы управления в столбик */
-        align-items: stretch; /* Растягиваем на всю ширину */
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+    .language-selector-wrapper { /* Уже было flex-basis: 100% на предыдущем брейкпоинте */
+        margin-bottom: 15px; 
     }
     #language-select, #new-ayah-button, .theme-toggle {
-        width: 100%; /* Каждому элементу всю ширину */
+        width: 100%; 
         box-sizing: border-box;
-        margin-bottom: 10px; /* Отступы между ними */
-        flex-basis: auto; /* Сбрасываем flex-basis */
+        margin-bottom: 10px;
+        flex-basis: auto;
+        flex-grow: 0; /* Сбрасываем grow, т.к. они уже 100% ширины */
     }
-    .theme-toggle { margin-bottom: 0; } /* Убираем отступ у последнего */
+    .theme-toggle { margin-bottom: 0; }
 
     .site-header h1 {
         font-size: clamp(1.6em, 6vw, 2em);

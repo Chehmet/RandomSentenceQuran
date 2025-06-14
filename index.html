@@ -10,20 +10,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Lato:wght@300;400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body> <!-- Тема будет применяться к body -->
+<body>
     <div class="container">
         <header class="site-header">
             <h1><i class="fas fa-quran"></i> آية اليوم - Ayah of the Day</h1>
         </header>
 
         <div class="controls">
-            <div class="language-selector-wrapper">
+            <div class="language-selector-wrapper"> <!-- Обертка для селектора и его метки -->
                 <label for="language-select"><i class="fas fa-language"></i> Язык перевода:</label>
                 <select id="language-select"></select>
             </div>
             <button id="new-ayah-button"><i class="fas fa-sync-alt"></i> Новый Аят</button>
             <button id="theme-toggle-button" class="theme-toggle" aria-label="Переключить тему">
-                <i class="fas fa-moon"></i> <!-- Иконка будет меняться JS -->
+                <i class="fas fa-moon"></i>
             </button>
         </div>
 
