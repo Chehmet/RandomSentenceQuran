@@ -1,18 +1,52 @@
 @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Lato:wght@300;400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Scheherazade+New:wght@400;700&display=swap');
 
 :root {
-    --primary-bg: #f4f7f6; /* Светлый фон */
-    --card-bg: #ffffff;    /* Фон карточки */
-    --text-color: #333333; /* Основной цвет текста */
-    --arabic-text-color: #2c3e50; /* Цвет арабского текста */
-    --accent-color: #28a745; /* Зеленый акцент, как в исламской тематике */
+    /* Light Theme (Defaults) */
+    --primary-bg: #f4f7f6;
+    --card-bg: #ffffff;
+    --container-bg: #ffffff;
+    --text-color: #333333;
+    --secondary-text-color: #555555;
+    --arabic-text-color: #2c3e50;
+    --accent-color: #28a745;
     --accent-color-hover: #218838;
     --border-color: #e0e0e0;
     --shadow-color: rgba(0, 0, 0, 0.1);
+    --icon-color: #555555;
+    --button-text-color: #ffffff;
+    --select-bg: #ffffff;
+    --select-text-color: #333333;
+    --select-border-color: var(--border-color);
+    --footer-link-color: var(--accent-color);
+    --divider-color: var(--border-color);
+    --loading-text-color: #777777;
+    --theme-toggle-button-bg: transparent; /* Changed from --card-bg for distinct look */
+    --theme-toggle-button-hover-bg: rgba(0,0,0,0.05);
+    --theme-toggle-button-icon-color: var(--icon-color);
 
-    --font-arabic: 'Scheherazade New', 'Amiri Quran', 'KFGQPC Uthman Taha Naskh', serif; /* Список предпочтительных шрифтов */
+    --font-arabic: 'Scheherazade New', 'Amiri Quran', 'KFGQPC Uthman Taha Naskh', serif;
     --font-translation: 'Merriweather', serif;
     --font-ui: 'Lato', sans-serif;
+    --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body.dark-theme {
+    --primary-bg: #1e272e;
+    --card-bg: #2c3a47;
+    --container-bg: #2c3a47; 
+    --text-color: #e0e6eb;
+    --secondary-text-color: #b0b8bf;
+    --arabic-text-color: #82ccdd;
+    --accent-color: #38c172; 
+    --accent-color-hover: #2f9e5f;
+    --border-color: #4a5568;
+    --shadow-color: rgba(0, 0, 0, 0.3); 
+    --icon-color: #b0b8bf;
+    --select-bg: #3a4754;
+    --select-text-color: #e0e6eb;
+    --footer-link-color: var(--accent-color);
+    --loading-text-color: #90989f;
+    --theme-toggle-button-hover-bg: rgba(255,255,255,0.1);
 }
 
 body {
@@ -23,31 +57,34 @@ body {
     padding: 20px;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Чтобы при длинном контенте не было отступа сверху */
+    align-items: flex-start;
     min-height: 100vh;
     line-height: 1.6;
-    direction: ltr; /* Общее направление страницы */
+    direction: ltr;
+    transition: var(--theme-transition);
 }
 
 .container {
     max-width: 800px;
     width: 100%;
-    padding: 20px;
-    background-color: var(--card-bg); /* Можно сделать основной контейнер тоже карточкой */
+    padding: 25px; /* Немного увеличим внутренние отступы */
+    background-color: var(--container-bg);
     border-radius: 12px;
     box-shadow: 0 8px 25px var(--shadow-color);
+    transition: var(--theme-transition), box-shadow 0.3s ease;
 }
 
 .site-header {
     text-align: center;
     margin-bottom: 30px;
     color: var(--accent-color);
+    transition: var(--theme-transition);
 }
 
 .site-header h1 {
     font-family: var(--font-ui);
     font-weight: 700;
-    font-size: 2.2em;
+    font-size: clamp(1.8em, 5vw, 2.2em); /* Адаптивный размер шрифта */
     margin: 0;
 }
 
@@ -57,69 +94,105 @@ body {
 
 .controls {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Позволяет переноситься на новую строку на малых экранах */
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    gap: 15px; /* Промежуток между элементами управления */
+    gap: 15px;
 }
-
-.language-selector-wrapper {
-    display: flex;
+.controls label {
+    display: flex; /* Для выравнивания иконки и текста */
     align-items: center;
-    gap: 8px;
+    color: var(--secondary-text-color); /* Используем secondary для label */
+    transition: var(--theme-transition);
+}
+.controls label .fa-language,
+.controls button .fa-sync-alt { /* Для иконки внутри кнопки Новый Аят */
+    margin-right: 8px;
+    /* Цвет иконки уже наследуется или задается специфично для кнопки */
 }
 
-#language-select, #new-ayah-button {
+/* Иконки в контролах, чтобы они тоже меняли цвет с темой */
+.controls .fa-language {
+    color: var(--icon-color);
+    transition: var(--theme-transition);
+}
+
+#language-select, #new-ayah-button, .theme-toggle {
     padding: 12px 18px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--select-border-color);
     border-radius: 8px;
     font-size: 1em;
     cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    background-color: #fff;
+    background-color: var(--select-bg);
+    color: var(--select-text-color);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    flex-grow: 0; /* Чтобы кнопки не растягивались некрасиво */
 }
 
 #language-select {
-    min-width: 200px; /* Чтобы селектор не был слишком узким */
+    min-width: 200px; /* Для десктопа */
+    flex-basis: 250px; /* Базовая ширина для flex */
+    flex-grow: 1; /* Позволяем селекту расти */
 }
 
 #new-ayah-button {
     background-color: var(--accent-color);
-    color: white;
+    color: var(--button-text-color); /* Явный цвет текста для акцентной кнопки */
     border-color: var(--accent-color);
+    flex-basis: 150px; /* Базовая ширина */
+    flex-grow: 1; /* Позволяем кнопке расти */
 }
+
+#new-ayah-button .fa-sync-alt { /* Иконка внутри кнопки */
+    color: var(--button-text-color); /* Чтобы иконка тоже была контрастной */
+}
+
 
 #new-ayah-button:hover {
     background-color: var(--accent-color-hover);
     border-color: var(--accent-color-hover);
     box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
 }
+body.dark-theme #new-ayah-button:hover {
+    box-shadow: 0 4px 12px rgba(56, 193, 114, 0.3);
+}
 
-#new-ayah-button .fa-sync-alt {
-    margin-right: 8px;
+.theme-toggle {
+    background-color: var(--theme-toggle-button-bg);
+    color: var(--theme-toggle-button-icon-color); /* Цвет иконки */
+    border: 1px solid var(--select-border-color);
+    padding: 10px 14px; /* Чуть больше по бокам для иконки */
+    font-size: 1.1em; /* Размер иконки */
+    line-height: 1;
+    flex-basis: auto; /* Автоматическая ширина по содержимому */
+    flex-grow: 0;
+}
+
+.theme-toggle:hover {
+    background-color: var(--theme-toggle-button-hover-bg);
 }
 
 .loading {
     text-align: center;
     padding: 40px 20px;
     font-size: 1.2em;
-    color: #777;
+    color: var(--loading-text-color);
+    transition: var(--theme-transition);
 }
 
 .loading .fa-spinner {
     margin-left: 10px;
     color: var(--accent-color);
+    transition: var(--theme-transition);
 }
 
 .ayah-card {
-    background-color: var(--card-bg); /* Теперь основной контейнер белый, карточку можно сделать с легким оттенком или такой же */
-    /* border: 1px solid var(--border-color); */ /* Убрал, т.к. контейнер уже имеет тень */
+    background-color: var(--card-bg);
     border-radius: 12px;
-    padding: 25px 30px;
-    /* box-shadow: 0 6px 15px var(--shadow-color); */ /* Тень уже на .container */
+    padding: clamp(20px, 4vw, 30px); /* Адаптивные внутренние отступы */
     margin-top: 20px;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.5s ease-in-out, var(--theme-transition);
 }
 
 #arabic-text-container {
@@ -129,28 +202,32 @@ body {
 
 #arabic-text {
     font-family: var(--font-arabic);
-    font-size: 2.8em; /* Крупный размер для арабского текста */
-    line-height: 1.8; /* Увеличиваем межстрочный интервал для арабского */
+    font-size: clamp(2em, 7vw, 2.8em); /* Адаптивный размер шрифта для арабского */
+    line-height: 1.8;
     color: var(--arabic-text-color);
-    direction: rtl; /* Важно для арабского текста */
-    margin-bottom: 10px; /* Отступ после арабского текста */
-    font-weight: 700; /* Некоторые шрифты лучше смотрятся с bold */
+    direction: rtl;
+    margin-bottom: 10px;
+    font-weight: 700;
+    transition: var(--theme-transition);
+    word-wrap: break-word; /* Для очень длинных слов без пробелов, если такие встретятся */
 }
 
 #ayah-info {
     text-align: center;
-    font-size: 1.1em;
-    color: #555;
+    font-size: clamp(0.9em, 2.5vw, 1.1em); /* Адаптивный размер */
+    color: var(--secondary-text-color);
     margin-bottom: 20px;
     font-family: var(--font-ui);
     font-weight: 400;
+    transition: var(--theme-transition);
 }
 
 .divider {
     border: none;
     height: 1px;
-    background-color: var(--border-color);
+    background-color: var(--divider-color);
     margin: 25px 0;
+    transition: var(--theme-transition);
 }
 
 #translation-container {
@@ -159,17 +236,17 @@ body {
 
 #translation-text {
     font-family: var(--font-translation);
-    font-size: 1.2em; /* Размер текста перевода */
+    font-size: clamp(1em, 3vw, 1.2em); /* Адаптивный размер */
     line-height: 1.7;
     color: var(--text-color);
-    text-align: left; /* Для большинства языков перевода */
+    text-align: left;
+    transition: var(--theme-transition);
+    word-wrap: break-word; /* Перенос слов */
 }
 
-/* Стили для языков с письмом справа налево в переводе */
 #translation-text[dir="rtl"] {
     text-align: right;
 }
-
 
 .site-footer {
     text-align: center;
@@ -177,41 +254,67 @@ body {
     padding-top: 20px;
     border-top: 1px solid var(--border-color);
     font-size: 0.9em;
-    color: #777;
+    color: var(--secondary-text-color);
+    transition: var(--theme-transition);
 }
 
 .site-footer a {
-    color: var(--accent-color);
+    color: var(--footer-link-color);
     text-decoration: none;
+    transition: var(--theme-transition);
 }
+.site-footer a:hover { text-decoration: underline; }
+.site-footer .fa-heart { transition: color 0.3s ease; }
 
-.site-footer a:hover {
-    text-decoration: underline;
-}
 
-/* Адаптивность */
-@media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-    .container {
-        padding: 15px;
-    }
+/* Адаптивность для мобильных телефонов */
+@media (max-width: 768px) { /* Более общий брейкпоинт */
     .controls {
-        flex-direction: column;
-        align-items: stretch; /* Растягиваем элементы управления на всю ширину */
+        /* Уже flex-wrap: wrap, что хорошо для мобильных */
+        justify-content: center; /* Центрируем, если не влезают в одну строку */
     }
-    #language-select, #new-ayah-button {
-        width: 100%;
-        box-sizing: border-box; /* Чтобы padding не увеличивал общую ширину */
+    #language-select {
+        min-width: 150px; /* Уменьшаем мин.ширину */
+        flex-basis: 100%; /* Занимает всю ширину, если одна */
+        margin-bottom: 10px; /* Отступ, если переносится */
     }
+    #new-ayah-button {
+        flex-basis: calc(50% - 10px); /* Например, 2 кнопки в ряд */
+         min-width: 120px;
+    }
+    .theme-toggle {
+        flex-basis: calc(50% - 10px); /* Например, 2 кнопки в ряд */
+        min-width: 50px; /* Для иконки достаточно */
+    }
+}
+
+
+@media (max-width: 480px) { /* Для очень маленьких экранов */
+    body { padding: 10px; }
+    .container { padding: 15px; }
+
+    .controls {
+        flex-direction: column; /* Все элементы управления в столбик */
+        align-items: stretch; /* Растягиваем на всю ширину */
+    }
+    #language-select, #new-ayah-button, .theme-toggle {
+        width: 100%; /* Каждому элементу всю ширину */
+        box-sizing: border-box;
+        margin-bottom: 10px; /* Отступы между ними */
+        flex-basis: auto; /* Сбрасываем flex-basis */
+    }
+    .theme-toggle { margin-bottom: 0; } /* Убираем отступ у последнего */
+
     .site-header h1 {
-        font-size: 1.8em;
+        font-size: clamp(1.6em, 6vw, 2em);
     }
     #arabic-text {
-        font-size: 2.2em;
+        font-size: clamp(1.8em, 8vw, 2.5em);
     }
     #translation-text {
-        font-size: 1.1em;
+        font-size: clamp(0.9em, 3.5vw, 1.1em);
+    }
+     #ayah-info {
+        font-size: clamp(0.8em, 2.8vw, 1em);
     }
 }

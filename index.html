@@ -7,11 +7,10 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Lato:wght@300;400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
-    <!-- Для иконки (Font Awesome) -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Lato:wght@300;400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body> <!-- Тема будет применяться к body -->
     <div class="container">
         <header class="site-header">
             <h1><i class="fas fa-quran"></i> آية اليوم - Ayah of the Day</h1>
@@ -23,6 +22,9 @@
                 <select id="language-select"></select>
             </div>
             <button id="new-ayah-button"><i class="fas fa-sync-alt"></i> Новый Аят</button>
+            <button id="theme-toggle-button" class="theme-toggle" aria-label="Переключить тему">
+                <i class="fas fa-moon"></i> <!-- Иконка будет меняться JS -->
+            </button>
         </div>
 
         <div id="loading-indicator" class="loading">
