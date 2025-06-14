@@ -6,144 +6,143 @@ document.addEventListener('DOMContentLoaded', () => {
     const newAyahButton = document.getElementById('new-ayah-button');
     const loadingIndicator = document.getElementById('loading-indicator');
     const ayahDisplayElement = document.getElementById('ayah-display');
-    const themeToggleButton = document.getElementById('theme-toggle-button'); // Эта кнопка теперь в хедере
+    const themeToggleButton = document.getElementById('theme-toggle-button');
     const themeIcon = themeToggleButton.querySelector('i');
-    const languageLabel = document.querySelector('label[for="language-select"]');
+    
+    const showSurahContextButton = document.getElementById('show-surah-context-button');
+    const hideSurahContextButton = document.getElementById('hide-surah-context-button');
+    const surahContextDisplay = document.getElementById('surah-context-display');
+    const surahContextInfo = document.getElementById('surah-context-info');
+    const surahContentElement = document.getElementById('surah-content-dynamic-area');
 
-    let quranData = [];
-    let translationOptions = {};
+    let quranData = []; 
+    let quranDataBySurah = {}; 
+    let translationOptions = {}; 
     let currentVerse = null;
-    let mainDataLoaded = false;
-    let placeholderAyahIndex = -1;
+    let currentDisplayedSurahNumber = null;
 
     const rtlLanguages = ['ar', 'fa', 'ur', 'dv', 'he', 'sd', 'ps', 'ku', 'ug', 'yi'];
     
-    // ВАЖНО: ЗАПОЛНИТЕ ЭТОТ ОБЪЕКТ СТРОКАМИ ДЛЯ РАЗНЫХ ЯЗЫКОВ
-    const localizedStrings = { 
-        'ru': { surah: 'Сура', ayah: 'Аят', langLabel: 'Язык перевода:', newAyah: 'Новый Аят', loading: 'Загрузка данных Корана...', loadingSmall: '(Это может занять некоторое время)', loadingError: 'Не удалось загрузить данные.', loadingFullList: 'Загрузка полного списка аятов...' },
-        'en': { surah: 'Surah', ayah: 'Ayah', langLabel: 'Translation Language:', newAyah: 'New Ayah', loading: 'Loading Quran data...', loadingSmall: '(This may take some time)', loadingError: 'Failed to load data.', loadingFullList: 'Loading full list of ayahs...' },
-        // ... добавьте другие языки
+    const baseEnStrings = {
+        siteTitle: "Random Ayah", headerTitle: "آية اليوم - Ayah of the Day", langLabel: "Translation Language:",
+        newAyahButton: "New Ayah", loadingText: "Loading Quran data...",
+        loadingSmallText: "(This may take some time)",
+        showSurahContextButton: "Show Surah Context (current ayah will be highlighted)", surahContextTitle: "Surah Context",
+        hideSurahContextButton: "Hide Context", translationMissing: "Translation not available.",
+        surahTooLargePrefix: "This Surah contains", ayah: "Ayah", 
+        surahTooLargeSuffix: "verses. Displaying 25 verses before and 25 after the current one.",
+        toggleThemeAriaLight: "Switch to dark theme", toggleThemeAriaDark: "Switch to light theme",
+        createdBy: "Created with", dataSource: "Data from dataset",
+        loadingError: "Failed to load data."
     };
 
-    // ВАЖНО: ЗАПОЛНИТЕ ЭТОТ МАССИВ ВАШИМИ 10 АЯТАМИ И ПЕРЕВОДАМИ
-    const placeholderAyahs = [
-        {
-            surah_number: 2, ayah_number: 255, surah_name_ar: "البقرة", surah_name_en: "Al-Baqara",
-            arabic_text: "ٱللَّهُ لَآ إِلَـٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ ۚ لَا تَأْخُذُهُۥ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُۥ مَا فِى ٱلسَّمَـٰوَٰتِ وَمَا فِى ٱلْأَرْضِ ۗ مَن ذَا ٱلَّذِى يَشْفَعُ عِندَهُۥٓ إِلَّا بِإِذْنِهِۦ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَىْءٍ مِّنْ عِلْمِهِۦٓ إِلَّا بِمَا شَآءَ ۚ وَسِعَ كُرْسِيُّهُ ٱلسَّمَـٰوَٰتِ وَٱلْأَرْضَ ۖ وَلَا يَـُٔودُهُۥ حِفْظُهُمَا ۚ وَهُوَ ٱلْعَلِىُّ ٱلْعَظِيمُ",
-            translations: {
-                "translation-ru-kuliev-alsaadi": "Аллах — нет божества, кроме Него, Живого, Поддерживающего жизнь. Им не овладевают ни дремота, ни сон. Ему принадлежит то, что на небесах, и то, что на земле. Кто станет заступаться перед Ним без Его дозволения? Он знает их будущее и прошлое. Они постигают из Его знания только то, что Он пожелает. Его Престол объемлет небеса и землю, и не тяготит Его оберегание их. Он — Возвышенный, Великий.",
-                "translation-en-sahih": "Allah - there is no deity except Him, the Ever-Living, the Sustainer of all existence...",
-            }
+    const localizedStrings = {
+        'ru': { 
+            ...baseEnStrings, 
+            siteTitle: "Случайный Аят", langLabel: "Язык перевода:",
+            newAyahButton: "Новый Аят", loadingText: "Загрузка данных Корана...",
+            loadingSmallText: "(Это может занять некоторое время)",
+            showSurahContextButton: "Показать контекст суры (текущий аят будет выделен)", surahContextTitle: "Контекст Суры",
+            hideSurahContextButton: "Скрыть контекст", translationMissing: "Перевод отсутствует.",
+            surahTooLargePrefix: "Эта сура содержит", ayah: "Аят", 
+            surahTooLargeSuffix: "аятов. Показаны 25 аятов до и 25 после текущего.",
+            toggleThemeAriaLight: "Переключить на темную тему", toggleThemeAriaDark: "Переключить на светлую тему",
+            createdBy: "Создано с", dataSource: "Данные из датасета",
+            loadingError: "Не удалось загрузить данные."
         },
-        
-    ];
+        'en': { 
+            ...baseEnStrings
+        },
+    };
 
-    function displayPlaceholderAyah() {
-        if (placeholderAyahs.length === 0) {
+    function generatePartialLocalizations(options) {
+        const langToSurahAyah = { 
+            'ar': { surah: 'سورة', ayah: 'آية' }, 'tr': { surah: 'Sûre', ayah: 'Âyet' },
+            'fr': { surah: 'Sourate', ayah: 'Verset' }, 'de': { surah: 'Sure', ayah: 'Vers' },
+            'es': { surah: 'Sura', ayah: 'Aya' }, 'id': { surah: 'Surah', ayah: 'Ayat' },
+            'fa': { surah: 'سوره', ayah: 'آیه' }, 'ur': { surah: 'سورۃ', ayah: 'آیت' },
+            'bn': { surah: 'সূরা', ayah: 'আয়াত' }, 'hi': { surah: 'सूरह', ayah: 'आयत' },
+            'zh': { surah: '章', ayah: '节' },
+        };
+
+        for (const key in options) {
+            const langCode = key.split('-')[1];
+            if (langCode && !localizedStrings[langCode]) { 
+                localizedStrings[langCode] = { 
+                    ...baseEnStrings, 
+                    ...(langToSurahAyah[langCode] || { surah: baseEnStrings.surah, ayah: baseEnStrings.ayah }) 
+                };
+            } else if (langCode && localizedStrings[langCode]) {
+                 localizedStrings[langCode].surah = (langToSurahAyah[langCode] && langToSurahAyah[langCode].surah) || localizedStrings[langCode].surah || baseEnStrings.surah;
+                 localizedStrings[langCode].ayah = (langToSurahAyah[langCode] && langToSurahAyah[langCode].ayah) || localizedStrings[langCode].ayah || baseEnStrings.ayah;
+                 localizedStrings[langCode].showSurahContextButton = baseEnStrings.showSurahContextButton; // Убедимся, что текст кнопки есть
+            }
+        }
+    }
+
+    function getCurrentLangCode() {
+        if (languageSelectElement.options.length > 0 && languageSelectElement.value) {
+            return languageSelectElement.value.split('-')[1] || 'ru';
+        }
+        return 'ru'; 
+    }
+
+    function getLocaleStrings() {
+        const langCode = getCurrentLangCode();
+        return localizedStrings[langCode] || localizedStrings['en'] || {};
+    }
+    
+    function showLoading(isLoading, isError = false, errorMessage = '') {
+        if (isLoading) {
+            loadingIndicator.style.display = 'block';
             ayahDisplayElement.style.display = 'none';
+            if (surahContextDisplay) surahContextDisplay.style.display = 'none';
+            if (showSurahContextButton) showSurahContextButton.style.display = 'none';
+        } else if (isError) {
             loadingIndicator.style.display = 'block';
-            return;
-        }
-        let randomIndex;
-        do {
-            randomIndex = Math.floor(Math.random() * placeholderAyahs.length);
-        } while (placeholderAyahs.length > 1 && randomIndex === placeholderAyahIndex);
-        placeholderAyahIndex = randomIndex;
-        
-        currentVerse = placeholderAyahs[randomIndex];
-
-        arabicTextElement.textContent = currentVerse.arabic_text;
-        updateAyahInfo(); 
-        updateTranslationDisplay(); 
-
-        ayahDisplayElement.style.display = 'block';
-        loadingIndicator.style.display = 'none'; 
-    }
-
-    async function loadData() {
-        const langCodeForLoading = (localStorage.getItem('selectedLanguage') || 'ru-').split('-')[1] || 'ru';
-        const locForLoading = localizedStrings[langCodeForLoading] || localizedStrings['ru'];
-
-        if (!mainDataLoaded) {
-            const loadingP = loadingIndicator.querySelector('p:first-child');
-            if(loadingP) loadingP.innerHTML = `${locForLoading.loadingFullList || 'Загрузка полного списка аятов...'} <i class="fas fa-spinner fa-spin"></i>`;
-            loadingIndicator.style.display = 'block';
-        }
-
-        try {
-            // ВАЖНО: Укажите здесь правильный путь к вашему основному JSON файлу
-            // Например, если он в корне репозитория и называется 'quran_main_data.json'
-            const response = await fetch('quran_data.json'); // ИЛИ ваш URL с Google Drive, если вы его используете
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status}. Response: ${errorText.substring(0,100)}...`);
-            }
-            
-            const data = await response.json();
-            
-            quranData = data.verses || [];
-            translationOptions = data.translation_options || {};
-            mainDataLoaded = true; 
-            
-            populateLanguageSelector(); 
-            const savedLang = localStorage.getItem('selectedLanguage');
-            if (savedLang && translationOptions[savedLang]) {
-                languageSelectElement.value = savedLang;
-            } else if (Object.keys(translationOptions).length > 0) {
-                languageSelectElement.value = Object.keys(translationOptions)[0];
-            }
-            
-            displayRandomVerseFromMainData(); 
-            loadingIndicator.style.display = 'none'; 
-            ayahDisplayElement.style.display = 'block';
-
-        } catch (error) {
-            console.error("Failed to load Quran data:", error);
-            mainDataLoaded = false; 
-            const langCode = (localStorage.getItem('selectedLanguage') || 'ru-').split('-')[1] || 'ru';
-            const loc = localizedStrings[langCode] || localizedStrings['ru'];
-            let errorMessage = loc.loadingError || 'Не удалось загрузить данные.';
-            if (error.message) {
-                errorMessage += ` Детали: ${error.message.substring(0, 150)}`;
-            }
-            loadingIndicator.innerHTML = `<p>${errorMessage}</p>`;
+            const loc = getLocaleStrings();
+            let msg = loc.loadingError || 'Failed to load data.';
+            if (errorMessage) msg += ` Details: ${errorMessage.substring(0,150)}`;
+            loadingIndicator.innerHTML = `<p>${msg}</p>`;
             loadingIndicator.style.color = 'red';
-            loadingIndicator.style.display = 'block'; 
-            if (!currentVerse || !placeholderAyahs.includes(currentVerse)) {
-                 ayahDisplayElement.style.display = 'none';
+            ayahDisplayElement.style.display = 'none';
+            if (surahContextDisplay) surahContextDisplay.style.display = 'none';
+        } else {
+            loadingIndicator.style.display = 'none';
+        }
+    }
+    
+    function applyLocalization() {
+        const loc = getLocaleStrings();
+        const langCode = getCurrentLangCode(); 
+
+        document.documentElement.lang = langCode; 
+        document.querySelectorAll('[data-localize]').forEach(el => {
+            const key = el.dataset.localize;
+            el.textContent = loc[key] || baseEnStrings[key] || `[${key}]`;
+        });
+        document.querySelectorAll('[data-localize-aria]').forEach(el => {
+            const key = el.dataset.localizeAria;
+            el.setAttribute('aria-label', loc[key] || baseEnStrings[key] || `[${key}]`);
+        });
+        
+        const isDark = document.body.classList.contains('dark-theme');
+        const toggleThemeAriaKey = isDark ? 'toggleThemeAriaDark' : 'toggleThemeAriaLight';
+        themeToggleButton.setAttribute('aria-label', loc[toggleThemeAriaKey] || baseEnStrings[toggleThemeAriaKey]);
+
+        if (showSurahContextButton) { // Обновляем текст кнопки контекста, если она видима
+            if (surahContextDisplay.style.display === 'block') {
+                showSurahContextButton.textContent = loc.hideSurahContextButton || baseEnStrings.hideSurahContextButton;
+            } else {
+                showSurahContextButton.textContent = loc.showSurahContextButton || baseEnStrings.showSurahContextButton;
             }
         }
-    }
-
-    function displayRandomVerseFromMainData() {
-        if (!quranData || quranData.length === 0) {
-            displayPlaceholderAyah(); 
-            return;
-        }
-        mainDataLoaded = true; 
-        const randomIndex = Math.floor(Math.random() * quranData.length);
-        currentVerse = quranData[randomIndex];
-
-        arabicTextElement.textContent = currentVerse.arabic_text;
-        updateAyahInfo();
-        updateTranslationDisplay();
-        ayahDisplayElement.style.display = 'block';
-    }
-
-    function displayRandomVerse() {
-        if (mainDataLoaded && quranData && quranData.length > 0) {
-            displayRandomVerseFromMainData();
-        } else {
-            displayPlaceholderAyah();
-        }
+        if (currentVerse) updateAyahInfo();
     }
 
     function populateLanguageSelector() {
         languageSelectElement.innerHTML = ''; 
-        
-        const currentOptions = mainDataLoaded ? translationOptions : getPlaceholderTranslationOptions();
-        const sortedOptions = Object.entries(currentOptions)
+        const sortedOptions = Object.entries(translationOptions)
                                     .sort(([,a],[,b]) => typeof a === 'string' && typeof b === 'string' ? a.localeCompare(b) : 0);
         
         sortedOptions.forEach(([key, prettyName]) => {
@@ -154,85 +153,127 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         const savedLang = localStorage.getItem('selectedLanguage');
-        if (savedLang && currentOptions[savedLang]) {
+        if (savedLang && translationOptions[savedLang]) {
             languageSelectElement.value = savedLang;
         } else if (sortedOptions.length > 0) {
             languageSelectElement.value = sortedOptions[0][0]; 
         }
-        if(currentVerse) updateTranslationDisplay(); 
-    }
-
-    function getPlaceholderTranslationOptions() {
-        const opts = {};
-        if (placeholderAyahs.length > 0 && placeholderAyahs[0].translations) {
-            for (const key in placeholderAyahs[0].translations) {
-                if (translationOptions && translationOptions[key]) {
-                    opts[key] = translationOptions[key];
-                } else { 
-                    const parts = key.split('-');
-                    const langPart = parts[1] ? parts[1].toUpperCase() : 'LANG';
-                    const authorPart = parts.slice(2).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' & ');
-                    opts[key] = `${langPart} (${authorPart || 'Default'})`;
-                }
-            }
-        }
-        if (!opts["translation-ru-kuliev-alsaadi"]) opts["translation-ru-kuliev-alsaadi"] = "Русский (Кулиев & ас-Саади)";
-        if (!opts["translation-en-sahih"]) opts["translation-en-sahih"] = "English (Sahih Int.)";
-        return opts;
     }
     
-    function applyLocalization() {
-        const selectedLanguageKey = languageSelectElement.value || 
-                                  (mainDataLoaded && Object.keys(translationOptions).length > 0 ? Object.keys(translationOptions)[0] : 
-                                  'translation-ru-kuliev-alsaadi'); 
-        const langCode = selectedLanguageKey.split('-')[1] || 'ru';
-        const loc = localizedStrings[langCode] || localizedStrings['ru'];
-
-        if (languageLabel) languageLabel.innerHTML = `<i class="fas fa-language"></i> ${loc.langLabel || 'Язык перевода:'}`;
-        if (newAyahButton) newAyahButton.innerHTML = `<i class="fas fa-sync-alt"></i> ${loc.newAyah || 'Новый Аят'}`;
-        
-        const loadingP = loadingIndicator.querySelector('p:first-child');
-        if (!mainDataLoaded && loadingP && loc.loadingFullList) {
-             loadingP.innerHTML = `${loc.loadingFullList} <i class="fas fa-spinner fa-spin"></i>`;
-        } else if (!mainDataLoaded && loadingP && loc.loading) {
-            loadingP.innerHTML = `${loc.loading} <i class="fas fa-spinner fa-spin"></i>`;
-        }
-
-        const loadingSmall = loadingIndicator.querySelector('p small');
-        if (loadingSmall && loc.loadingSmall) loadingSmall.textContent = `(${loc.loadingSmall})`;
-
-        if (currentVerse) updateAyahInfo();
-    }
-
     function updateAyahInfo() {
         if (!currentVerse) return;
-        const selectedLanguageKey = languageSelectElement.value || 
-                                  (mainDataLoaded && Object.keys(translationOptions).length > 0 ? Object.keys(translationOptions)[0] : 
-                                  'translation-ru-kuliev-alsaadi');
-        const langCode = selectedLanguageKey.split('-')[1] || 'ru'; 
-        const loc = localizedStrings[langCode] || localizedStrings['ru'];
-        ayahInfoElement.textContent = `${loc.surah || 'Сура'} ${currentVerse.surah_name_ar} (${currentVerse.surah_name_en}) | ${loc.ayah || 'Аят'} ${currentVerse.surah_number}:${currentVerse.ayah_number}`;
+        const loc = getLocaleStrings();
+        
+        const surahString = loc.surah || baseEnStrings.surah; 
+        const ayahString = loc.ayah || baseEnStrings.ayah;   
+
+        ayahInfoElement.textContent = `${surahString} ${currentVerse.surah_name_ar} (${currentVerse.surah_name_en}) | ${ayahString} ${currentVerse.surah_number}:${currentVerse.ayah_number}`;
+    }
+
+    function displayRandomVerse() {
+        if (!quranData || quranData.length === 0) return;
+        
+        const randomIndex = Math.floor(Math.random() * quranData.length);
+        currentVerse = quranData[randomIndex];
+
+        arabicTextElement.textContent = currentVerse.arabic_text;
+        updateAyahInfo();
+        updateTranslationDisplay(); // Это также вызовет applyLocalization и updateAyahInfo внутри себя
+
+        ayahDisplayElement.style.display = 'block';
+        if (showSurahContextButton) {
+            const loc = getLocaleStrings();
+            showSurahContextButton.textContent = loc.showSurahContextButton || baseEnStrings.showSurahContextButton; // Сброс текста кнопки
+            showSurahContextButton.style.display = 'inline-block'; 
+        }
+        if (surahContextDisplay) surahContextDisplay.style.display = 'none'; 
+        currentDisplayedSurahNumber = null; 
     }
 
     function updateTranslationDisplay() {
         if (!currentVerse) return;
-        const selectedLanguageKey = languageSelectElement.value || 
-                                  (mainDataLoaded && Object.keys(translationOptions).length > 0 ? Object.keys(translationOptions)[0] : 
-                                  (!mainDataLoaded && placeholderAyahs.length > 0 && placeholderAyahs[placeholderAyahIndex].translations ? Object.keys(placeholderAyahs[placeholderAyahIndex].translations)[0] : 'translation-ru-kuliev-alsaadi'));
-        
+        const selectedLanguageKey = languageSelectElement.value; 
         localStorage.setItem('selectedLanguage', selectedLanguageKey); 
         
         const translation = currentVerse.translations[selectedLanguageKey];
+        const loc = getLocaleStrings();
 
         if (translation) {
             translationTextElement.textContent = translation;
             const langCodeForDir = selectedLanguageKey.split('-')[1];
             translationTextElement.setAttribute('dir', rtlLanguages.includes(langCodeForDir) ? 'rtl' : 'ltr');
         } else {
-            translationTextElement.textContent = mainDataLoaded ? (localizedStrings[selectedLanguageKey.split('-')[1]]?.loadingError || "Перевод отсутствует.") : "";
+            translationTextElement.textContent = loc.translationMissing || baseEnStrings.translationMissing;
             translationTextElement.setAttribute('dir', 'ltr');
         }
-         if (currentVerse) updateAyahInfo();
+        updateAyahInfo(); 
+    }
+    
+    function displaySurahContext() {
+        if (!currentVerse || !quranDataBySurah[currentVerse.surah_number] || !surahContentElement) return;
+
+        const surahAyahs = quranDataBySurah[currentVerse.surah_number];
+        const totalAyahsInSurah = surahAyahs.length;
+        let ayahsToShow = surahAyahs;
+        let contextMessage = "";
+        const loc = getLocaleStrings();
+        const defaultTranslationMissing = loc.translationMissing || baseEnStrings.translationMissing;
+
+        if (totalAyahsInSurah > 50) {
+            const prefix = loc.surahTooLargePrefix || baseEnStrings.surahTooLargePrefix;
+            const ayahLocString = (loc.ayah || baseEnStrings.ayah).toLowerCase();
+            const suffix = loc.surahTooLargeSuffix || baseEnStrings.surahTooLargeSuffix;
+            contextMessage = `${prefix} ${totalAyahsInSurah} ${ayahLocString}. ${suffix}`;
+            
+            const currentIndex = surahAyahs.findIndex(v => v.ayah_number === currentVerse.ayah_number);
+            const start = Math.max(0, currentIndex - 25); // Было 5, вернул 25 для большего контекста
+            const end = Math.min(totalAyahsInSurah, currentIndex + 25 + 1);
+            ayahsToShow = surahAyahs.slice(start, end);
+        }
+        surahContextInfo.textContent = contextMessage;
+        surahContextInfo.style.display = contextMessage ? 'block' : 'none';
+
+        surahContentElement.innerHTML = ''; 
+
+        const selectedTranslationKey = languageSelectElement.value;
+
+        ayahsToShow.forEach(ayah => {
+            const ayahRowDiv = document.createElement('div');
+            ayahRowDiv.classList.add('surah-ayah-row');
+
+            const arabicColDiv = document.createElement('div');
+            arabicColDiv.classList.add('surah-ayah-arabic');
+            arabicColDiv.dir = 'rtl';
+            const pArabic = document.createElement('p');
+            pArabic.textContent = `${ayah.arabic_text} (${ayah.ayah_number})`;
+            arabicColDiv.appendChild(pArabic);
+
+            const translationColDiv = document.createElement('div');
+            translationColDiv.classList.add('surah-ayah-translation');
+            const pTranslation = document.createElement('p');
+            const translationText = ayah.translations[selectedTranslationKey] || defaultTranslationMissing;
+            pTranslation.textContent = `${translationText} (${ayah.ayah_number})`;
+            translationColDiv.appendChild(pTranslation);
+
+            if (ayah.ayah_number === currentVerse.ayah_number && ayah.surah_number === currentVerse.surah_number) {
+                ayahRowDiv.classList.add('highlighted-ayah-row');
+            }
+            
+            ayahRowDiv.appendChild(arabicColDiv);
+            ayahRowDiv.appendChild(translationColDiv);
+            surahContentElement.appendChild(ayahRowDiv);
+        });
+
+        surahContextDisplay.style.display = 'block';
+        currentDisplayedSurahNumber = currentVerse.surah_number;
+        showSurahContextButton.textContent = loc.hideSurahContextButton || baseEnStrings.hideSurahContextButton;
+    }
+
+    function hideSurahContext() {
+        surahContextDisplay.style.display = 'none';
+        currentDisplayedSurahNumber = null;
+        const loc = getLocaleStrings();
+        showSurahContextButton.textContent = loc.showSurahContextButton || baseEnStrings.showSurahContextButton;
     }
     
     function applyTheme(theme) {
@@ -240,26 +281,99 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.toggle('dark-theme', isDark);
         themeIcon.classList.toggle('fa-sun', isDark);
         themeIcon.classList.toggle('fa-moon', !isDark);
-        themeToggleButton.setAttribute('aria-label', isDark ? 'Переключить на светлую тему' : 'Переключить на темную тему');
+        const loc = getLocaleStrings();
+        const ariaLabelKey = isDark ? 'toggleThemeAriaDark' : 'toggleThemeAriaLight';
+        themeToggleButton.setAttribute('aria-label', loc[ariaLabelKey] || baseEnStrings[ariaLabelKey]);
         localStorage.setItem('theme', theme);
     }
 
-    // Инициализация
-    populateLanguageSelector(); 
-    displayPlaceholderAyah(); 
-    applyLocalization(); 
-    
+    async function loadData() {
+        showLoading(true);
+        try {
+            const response = await fetch('quran_data.json'); 
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status}. Response: ${errorText.substring(0,100)}...`);
+            }
+            const data = await response.json();
+            
+            quranData = data.verses || [];
+            translationOptions = data.translation_options || {};
+            
+            generatePartialLocalizations(translationOptions); 
+
+            quranDataBySurah = quranData.reduce((acc, verse) => {
+                if (!acc[verse.surah_number]) acc[verse.surah_number] = [];
+                acc[verse.surah_number].push(verse);
+                return acc;
+            }, {});
+
+            for (const surahNum in quranDataBySurah) {
+                quranDataBySurah[surahNum].sort((a, b) => a.ayah_number - b.ayah_number);
+            }
+            
+            populateLanguageSelector(); 
+            const savedLang = localStorage.getItem('selectedLanguage');
+            if (savedLang && translationOptions[savedLang]) {
+                languageSelectElement.value = savedLang;
+            } else if (Object.keys(translationOptions).length > 0) {
+                languageSelectElement.value = Object.keys(translationOptions)[0];
+            }
+            
+            applyLocalization(); 
+            displayRandomVerse(); 
+            
+            showLoading(false);
+            ayahDisplayElement.style.display = 'block';
+            // Кнопка контекста теперь всегда отображается после загрузки данных
+            if(showSurahContextButton) {
+                 const loc = getLocaleStrings();
+                 showSurahContextButton.textContent = loc.showSurahContextButton || baseEnStrings.showSurahContextButton;
+                 showSurahContextButton.style.display = 'inline-block';
+            }
+
+        } catch (error) {
+            console.error("Failed to load Quran data:", error);
+            showLoading(false, true, error.message); 
+        }
+    }
+
     loadData(); 
 
-    newAyahButton.addEventListener('click', displayRandomVerse);
+    newAyahButton.addEventListener('click', () => {
+        displayRandomVerse(); // Это уже сбрасывает текст кнопки и скрывает контекст
+    });
+
     languageSelectElement.addEventListener('change', () => {
-        updateTranslationDisplay(); 
         applyLocalization(); 
+        updateTranslationDisplay(); 
+        if (surahContextDisplay.style.display === 'block' && currentDisplayedSurahNumber) {
+            if(currentVerse && currentVerse.surah_number === currentDisplayedSurahNumber) {
+                displaySurahContext();
+            } else {
+                hideSurahContext(); 
+            }
+        }
     });
     themeToggleButton.addEventListener('click', () => {
         const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
         applyTheme(currentTheme === 'light' ? 'dark' : 'light');
     });
+
+    if(showSurahContextButton) {
+        showSurahContextButton.addEventListener('click', () => {
+            if (surahContextDisplay.style.display === 'block') {
+                hideSurahContext();
+            } else {
+                displaySurahContext();
+            }
+        });
+    }
+    if(hideSurahContextButton) {
+        hideSurahContextButton.addEventListener('click', hideSurahContext);
+    }
+
     const preferredColorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     const savedTheme = localStorage.getItem('theme') || preferredColorScheme;
     applyTheme(savedTheme);

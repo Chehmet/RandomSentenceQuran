@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Случайный Аят из Корана</title>
+    <title data-localize="siteTitle">Случайный Аят из Корана</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,24 +13,23 @@
 <body>
     <div class="container">
         <header class="site-header">
-            <h1 class="site-title"><i class="fas fa-quran"></i> آية اليوم - Ayah of the Day</h1>
-            <button id="theme-toggle-button" class="theme-toggle-header" aria-label="Переключить тему">
+            <h1 class="site-title"><i class="fas fa-quran"></i> <span data-localize="headerTitle">آية اليوم - Ayah of the Day</span></h1>
+            <button id="theme-toggle-button" class="theme-toggle-header" aria-label="Переключить тему" data-localize-aria="toggleThemeAriaLight">
                 <i class="fas fa-moon"></i>
             </button>
         </header>
 
         <div class="controls">
             <div class="language-selector-wrapper">
-                <label for="language-select"><i class="fas fa-language"></i> Язык перевода:</label>
+                <label for="language-select"><i class="fas fa-language"></i> <span data-localize="langLabel">Язык перевода:</span></label>
                 <select id="language-select"></select>
             </div>
-            <button id="new-ayah-button"><i class="fas fa-sync-alt"></i> Новый Аят</button>
-            <!-- Кнопка смены темы была здесь, теперь она в header -->
+            <button id="new-ayah-button"><i class="fas fa-sync-alt"></i> <span data-localize="newAyahButton">Новый Аят</span></button>
         </div>
 
         <div id="loading-indicator" class="loading">
-            <p>Загрузка данных Корана... <i class="fas fa-spinner fa-spin"></i></p>
-            <p><small>(Это может занять некоторое время при первой загрузке)</small></p>
+            <p><span data-localize="loadingText">Загрузка данных Корана...</span> <i class="fas fa-spinner fa-spin"></i></p>
+            <p><small data-localize="loadingSmallText">(Это может занять некоторое время при первой загрузке)</small></p>
         </div>
         
         <main id="ayah-display" class="ayah-card" style="display: none;">
@@ -38,17 +37,26 @@
                 <p id="arabic-text" dir="rtl"></p>
             </div>
             <p id="ayah-info"></p>
+            <button id="show-surah-context-button" class="context-button" style="display: none;" data-localize="showSurahContextButton">Показать контекст суры</button>
             <hr class="divider">
             <div id="translation-container">
                 <p id="translation-text"></p>
             </div>
         </main>
 
+        <section id="surah-context-display" class="surah-context-card" style="display: none;">
+            <h2 data-localize="surahContextTitle">Контекст Суры</h2>
+            <p id="surah-context-info" class="surah-context-message"></p>
+            <div class="surah-content" id="surah-content-dynamic-area">
+                
+            </div>
+            <button id="hide-surah-context-button" class="context-button" data-localize="hideSurahContextButton">Скрыть контекст</button>
+        </section>
+
         <footer class="site-footer">
-            <p>Создано с <i class="fas fa-heart" style="color: #e91e63;"></i>. Данные из датасета <a href="https://huggingface.co/datasets/nazimali/quran" target="_blank">nazimali/quran</a>.</p>
+            <p><span data-localize="createdBy">Создано с</span> <i class="fas fa-heart" style="color: #e91e63;"></i>. <span data-localize="dataSource">Данные из датасета</span> <a href="https://huggingface.co/datasets/nazimali/quran" target="_blank">nazimali/quran</a>.</p>
         </footer>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>

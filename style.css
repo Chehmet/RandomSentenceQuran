@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Lato:wght@300;400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Scheherazade+New:wght@400;700&display=swap');
 
 :root {
-    /* ... (все ваши CSS переменные остаются такими же) ... */
     --primary-bg: #f4f7f6;
     --card-bg: #ffffff;
     --container-bg: #ffffff;
@@ -23,6 +22,7 @@
     --theme-toggle-button-bg: transparent;
     --theme-toggle-button-hover-bg: rgba(0,0,0,0.05);
     --theme-toggle-button-icon-color: var(--icon-color);
+    --accent-color-rgb: 40, 167, 69;
 
     --font-arabic: 'Scheherazade New', 'Amiri Quran', 'KFGQPC Uthman Taha Naskh', serif;
     --font-translation: 'Merriweather', serif;
@@ -31,7 +31,6 @@
 }
 
 body.dark-theme {
-    /* ... (все ваши CSS переменные для темной темы остаются такими же) ... */
     --primary-bg: #1e272e;
     --card-bg: #2c3a47;
     --container-bg: #2c3a47; 
@@ -48,6 +47,7 @@ body.dark-theme {
     --footer-link-color: var(--accent-color);
     --loading-text-color: #90989f;
     --theme-toggle-button-hover-bg: rgba(255,255,255,0.1);
+    --accent-color-rgb: 56, 193, 114;
 }
 
 body {
@@ -75,60 +75,56 @@ body {
     transition: var(--theme-transition), box-shadow 0.3s ease;
 }
 
-/* Изменения для заголовка */
 .site-header {
-    display: flex; /* Для размещения заголовка и кнопки в ряд */
-    justify-content: center; /* Центрируем основной заголовок */
-    align-items: center; /* Вертикальное выравнивание по центру */
-    position: relative; /* Для позиционирования кнопки темы относительно хедера, если потребуется */
-    text-align: center; /* Общее центрирование, если flex не используется */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    position: relative; 
+    text-align: center; 
     margin-bottom: 30px;
     color: var(--accent-color);
     transition: var(--theme-transition);
 }
 
-.site-title { /* Класс для самого h1 */
+.site-title { 
     font-family: var(--font-ui);
     font-weight: 700;
     font-size: clamp(1.8em, 5vw, 2.2em);
-    margin: 0; /* Убираем стандартные отступы h1 */
-    /* flex-grow: 1; /* Если нужно, чтобы заголовок занимал доступное место */
-    /* text-align: center; /* Если justify-content: space-between используется в .site-header */
+    margin: 0; 
+    display: inline-flex; 
+    align-items: center;
 }
 
 .site-title .fa-quran {
     margin-right: 10px;
 }
 
-/* Новая кнопка смены темы в хедере */
 .theme-toggle-header {
-    background-color: transparent; /* Без фона */
-    color: var(--icon-color); /* Используем цвет иконок из темы */
-    border: none; /* Без рамки */
-    padding: 8px; /* Небольшой отступ вокруг иконки */
-    margin-left: 15px; /* Отступ от заголовка */
-    font-size: 0.9em; /* Чуть меньше основного текста, чтобы кнопка была неброской */
+    background-color: transparent; 
+    color: var(--icon-color); 
+    border: none; 
+    padding: 8px; 
+    margin-left: 15px; 
+    font-size: 0.9em; 
     line-height: 1;
     cursor: pointer;
-    border-radius: 50%; /* Круглая кнопка */
+    border-radius: 50%; 
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px; /* Фиксированный размер для круга */
-    height: 36px; /* Фиксированный размер для круга */
+    width: 36px; 
+    height: 36px; 
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .theme-toggle-header:hover {
-    background-color: var(--theme-toggle-button-hover-bg); /* Фон при наведении */
+    background-color: var(--theme-toggle-button-hover-bg); 
 }
 
 .theme-toggle-header i {
-    font-size: 1.2em; /* Размер самой иконки внутри кнопки */
+    font-size: 1.2em; 
 }
 
-
-/* Блок .controls теперь содержит только селект и кнопку "Новый Аят" */
 .controls {
     display: flex;
     flex-wrap: wrap; 
@@ -161,7 +157,7 @@ body {
 }
 
 #language-select, 
-#new-ayah-button { /* .theme-toggle удален отсюда */
+#new-ayah-button { 
     padding: 11px 17px; 
     border: 1px solid var(--select-border-color);
     border-radius: 8px;
@@ -202,9 +198,6 @@ body {
 body.dark-theme #new-ayah-button:hover {
     box-shadow: 0 4px 12px rgba(56, 193, 114, 0.3);
 }
-
-/* Остальные стили (.loading, .ayah-card, etc.) остаются без изменений */
-/* ... (скопируйте сюда ваш остальной CSS) ... */
 
 .loading {
     text-align: center;
@@ -281,6 +274,110 @@ body.dark-theme #new-ayah-button:hover {
     text-align: right;
 }
 
+.context-button {
+    display: block; 
+    margin: 15px auto; 
+    padding: 10px 20px;
+    background-color: var(--accent-color);
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.context-button:hover {
+    background-color: var(--accent-color-hover);
+}
+
+#ayah-display #show-surah-context-button {
+    background-color: var(--secondary-text-color); 
+    color: var(--primary-bg); 
+}
+body.dark-theme #ayah-display #show-surah-context-button {
+     background-color: var(--select-bg); 
+     color: var(--text-color);
+}
+#ayah-display #show-surah-context-button:hover {
+    background-color: var(--text-color); 
+}
+body.dark-theme #ayah-display #show-surah-context-button:hover {
+     background-color: var(--border-color); 
+}
+
+.surah-context-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: clamp(20px, 4vw, 30px);
+    margin-top: 30px;
+    box-shadow: 0 6px 15px var(--shadow-color);
+    transition: opacity 0.5s ease-in-out, var(--theme-transition);
+}
+
+.surah-context-card h2 {
+    text-align: center;
+    color: var(--accent-color);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: clamp(1.5em, 4vw, 1.8em);
+}
+
+.surah-context-message {
+    text-align: center;
+    font-style: italic;
+    color: var(--secondary-text-color);
+    margin-bottom: 20px;
+    font-size: 0.9em;
+}
+
+.surah-content {
+    margin-bottom: 20px;
+}
+
+.surah-ayah-row {
+    display: flex;
+    flex-direction: column; 
+    margin-bottom: 20px; 
+    border-bottom: 1px solid var(--divider-color); 
+    padding-bottom: 15px;
+}
+.surah-ayah-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.surah-ayah-arabic,
+.surah-ayah-translation {
+    padding: 5px 0; 
+}
+
+.surah-ayah-arabic p,
+.surah-ayah-translation p {
+    margin: 0; 
+    line-height: 1.7;
+    font-size: 1em; 
+}
+
+.surah-ayah-arabic p {
+    font-family: var(--font-arabic);
+    font-size: 1.6em; 
+    line-height: 2;
+    color: var(--arabic-text-color);
+    text-align: right;
+}
+
+.highlighted-ayah-row {
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+    border-left: 3px solid var(--accent-color); 
+    padding: 10px;
+    margin-left: -10px; margin-right: -10px; 
+    border-radius: 5px;
+}
+body.dark-theme .highlighted-ayah-row {
+    background-color: rgba(var(--accent-color-rgb), 0.2);
+    border-left-color: var(--accent-color);
+}
+
 .site-footer {
     text-align: center;
     margin-top: 40px;
@@ -299,20 +396,31 @@ body.dark-theme #new-ayah-button:hover {
 .site-footer a:hover { text-decoration: underline; }
 .site-footer .fa-heart { transition: color 0.3s ease; }
 
+@media (min-width: 769px) { 
+    .surah-ayah-row {
+        flex-direction: row; 
+        gap: 20px; 
+        align-items: flex-start; 
+    }
+    .surah-ayah-arabic,
+    .surah-ayah-translation {
+        flex: 1; 
+        padding: 0; 
+    }
+}
 
 @media (max-width: 768px) { 
     .site-header {
-        flex-direction: row; /* Заголовок и кнопка всегда в ряд */
-        justify-content: space-between; /* Расталкиваем по краям */
+        flex-direction: row; 
+        justify-content: space-between; 
     }
     .site-title {
-        text-align: left; /* Если заголовок слева */
-        flex-grow: 1; /* Позволяем заголовку занять место */
+        text-align: left; 
+        flex-grow: 1; 
     }
     .theme-toggle-header {
-        margin-left: 10px; /* Уменьшаем отступ для мобильных */
+        margin-left: 10px; 
     }
-
     .controls {
         align-items: stretch; 
     }
@@ -321,23 +429,21 @@ body.dark-theme #new-ayah-button:hover {
         margin-bottom: 15px; 
         min-width: 0; 
     }
-     #new-ayah-button { /* Кнопка "Новый Аят" теперь одна в блоке .controls на мобильных */
+     #new-ayah-button {
         flex-grow: 1; 
         flex-basis: 100%; 
     }
 }
 
-
 @media (max-width: 480px) { 
     body { padding: 10px; }
     .container { padding: 15px; }
     
-    .site-header h1 { font-size: clamp(1.6em, 6vw, 1.8em); } /* Уменьшаем заголовок */
+    .site-header .site-title { font-size: clamp(1.5em, 5vw, 1.7em); } 
     .theme-toggle-header {
         width: 32px; height: 32px; padding: 6px; margin-left: 8px;
     }
      .theme-toggle-header i { font-size: 1em; }
-
 
     .controls {
         flex-direction: column; 
@@ -346,16 +452,16 @@ body.dark-theme #new-ayah-button:hover {
     .language-selector-wrapper {
         margin-bottom: 15px; 
     }
-    #language-select, #new-ayah-button { /* .theme-toggle удален из этого списка */
+    #language-select, #new-ayah-button {
         width: 100%; 
         box-sizing: border-box;
         margin-bottom: 10px;
         flex-basis: auto;
         flex-grow: 0; 
     }
-    /* .theme-toggle { margin-bottom: 0; } - эта кнопка теперь не здесь */
-
     #arabic-text { font-size: clamp(1.8em, 8vw, 2.5em); }
     #translation-text { font-size: clamp(0.9em, 3.5vw, 1.1em); }
     #ayah-info { font-size: clamp(0.8em, 2.8vw, 1em); }
+    .surah-ayah-arabic p { font-size: 1.4em; }
+    .surah-ayah-translation p { font-size: 0.95em; }
 }
