@@ -6,80 +6,87 @@ document.addEventListener('DOMContentLoaded', () => {
     const newAyahButton = document.getElementById('new-ayah-button');
     const loadingIndicator = document.getElementById('loading-indicator');
     const ayahDisplayElement = document.getElementById('ayah-display');
-    const themeToggleButton = document.getElementById('theme-toggle-button');
+    const themeToggleButton = document.getElementById('theme-toggle-button'); // Эта кнопка теперь в хедере
     const themeIcon = themeToggleButton.querySelector('i');
     const languageLabel = document.querySelector('label[for="language-select"]');
-
 
     let quranData = [];
     let translationOptions = {};
     let currentVerse = null;
-    
-    // Языки с письмом справа налево для установки dir="rtl" на тексте перевода
-    const rtlLanguages = ['ar', 'fa', 'ur', 'dv', 'he', 'sd', 'ps', 'ku', 'ug', 'yi']; 
+    let mainDataLoaded = false;
+    let placeholderAyahIndex = -1;
 
-    // Строки для локализации интерфейса
-    const localizedStrings = {
-        // Добавьте больше языков по мере необходимости
-        'am': { surah: 'ምዕራፍ', ayah: 'አንቀጽ', langLabel: 'የትርጉም ቋንቋ:', newAyah: 'አዲስ አንቀጽ', loading: 'የቁርኣን መረጃ በመጫን ላይ...', loadingSmall: '(ለመጀመሪያ ጊዜ ሲጫን የተወሰነ ጊዜ ሊወስድ ይችላል)' },
-        'ar': { surah: 'سورة', ayah: 'آية', langLabel: 'لغة الترجمة:', newAyah: 'آية جديدة', loading: 'جاري تحميل بيانات القرآن...', loadingSmall: '(قد يستغرق بعض الوقت عند التحميل لأول مرة)' },
-        'az': { surah: 'Surə', ayah: 'Ayə', langLabel: 'Tərcümə dili:', newAyah: 'Yeni Ayə', loading: 'Quran məlumatları yüklənir...', loadingSmall: '(İlk yükləmədə bir qədər vaxt apara bilər)' },
-        'bg': { surah: 'Сура', ayah: 'Аят', langLabel: 'Език на превода:', newAyah: 'Нов Аят', loading: 'Зареждане на данни от Корана...', loadingSmall: '(Може да отнеме известно време при първо зареждане)' },
-        'bn': { surah: 'সূরা', ayah: 'আয়াত', langLabel: 'অনুবাদের ভাষা:', newAyah: 'নতুন আয়াত', loading: 'কুরআনের ডেটা লোড হচ্ছে...', loadingSmall: '(প্রথমবার লোড হতে কিছু সময় লাগতে পারে)' },
-        'bs': { surah: 'Sura', ayah: 'Ajet', langLabel: 'Jezik prijevoda:', newAyah: 'Novi Ajet', loading: 'Učitavanje podataka iz Kur\'ana...', loadingSmall: '(Može potrajati prilikom prvog učitavanja)' },
-        'cs': { surah: 'Súra', ayah: 'Verš', langLabel: 'Jazyk překladu:', newAyah: 'Nový Verš', loading: 'Načítání dat Koránu...', loadingSmall: '(Při prvním načtení to může chvíli trvat)' },
-        'de': { surah: 'Sure', ayah: 'Vers', langLabel: 'Übersetzungssprache:', newAyah: 'Neuer Vers', loading: 'Lade Korandaten...', loadingSmall: '(Kann beim ersten Mal etwas dauern)' },
-        'dv': { surah: 'ސޫރަތް', ayah: 'އާޔަތް', langLabel: 'ތަރުޖަމާގެ ބަސް:', newAyah: 'އަލަށް އާޔަތެއް', loading: 'ޤުރުއާނުގެ މަޢުލޫމާތުތައް އަންނަނީ ލޯޑް ކުރެވެމުން...', loadingSmall: '(ފުރަތަމަ ފަހަރަށް ލޯޑް ކުރާއިރު، ކޮންމެވެސް ވަރެއްގެ ވަގުތެއް ނަގާފާނެއެވެ.)' },
-        'en': { surah: 'Surah', ayah: 'Ayah', langLabel: 'Translation Language:', newAyah: 'New Ayah', loading: 'Loading Quran data...', loadingSmall: '(This may take some time on first load)' },
-        'es': { surah: 'Sura', ayah: 'Aya', langLabel: 'Idioma de traducción:', newAyah: 'Nueva Aya', loading: 'Cargando datos del Corán...', loadingSmall: '(Puede tardar un poco la primera vez)' },
-        'fa': { surah: 'سوره', ayah: 'آیه', langLabel: 'زبان ترجمه:', newAyah: 'آیه جدید', loading: 'در حال بارگذاری داده‌های قرآن...', loadingSmall: '(بار اول ممکن است کمی طول بکشد)' },
-        'fr': { surah: 'Sourate', ayah: 'Verset', langLabel: 'Langue de traduction:', newAyah: 'Nouveau Verset', loading: 'Chargement des données du Coran...', loadingSmall: '(Peut prendre un certain temps au premier chargement)' },
-        'ha': { surah: 'Sura', ayah: 'Aya', langLabel: 'Harshen Fassara:', newAyah: 'Sabon Aya', loading: 'Ana lodo bayanan Alqur\'ani...', loadingSmall: '(Wannan na iya ɗaukar ɗan lokaci a lodi na farko)' },
-        'hi': { surah: 'सूरह', ayah: 'आयत', langLabel: 'अनुवाद की भाषा:', newAyah: 'नई आयत', loading: 'कुरान डेटा लोड हो रहा है...', loadingSmall: '(पहली बार लोड होने में कुछ समय लग सकता है)' },
-        'id': { surah: 'Surah', ayah: 'Ayat', langLabel: 'Bahasa Terjemahan:', newAyah: 'Ayat Baru', loading: 'Memuat data Quran...', loadingSmall: '(Mungkin perlu waktu saat pemuatan pertama)' },
-        'it': { surah: 'Sura', ayah: 'Versetto', langLabel: 'Lingua di traduzione:', newAyah: 'Nuovo Versetto', loading: 'Caricamento dati Corano...', loadingSmall: '(Potrebbe richiedere del tempo al primo caricamento)' },
-        'ja': { surah: 'スーラ', ayah: '節', langLabel: '翻訳言語:', newAyah: '新しい節', loading: 'コーランデータを読み込んでいます...', loadingSmall: '(初回読み込みには時間がかかる場合があります)' },
-        'ko': { surah: '수라', ayah: '절', langLabel: '번역 언어:', newAyah: '새로운 절', loading: '쿠란 데이터 로드 중...', loadingSmall: '(처음 로드 시 시간이 걸릴 수 있습니다)' },
-        'ku': { surah: 'Sure', ayah: 'Ayet', langLabel: 'Zimanê Wergêrê:', newAyah: 'Ayeta Nû', loading: 'Daneyên Quranê têne barkirin...', loadingSmall: '(Dibe ku di barkirina yekem de hinekî dem bigire)' },
-        'ml': { surah: 'സൂറ', ayah: 'ആയത്ത്', langLabel: 'വിവർത്തന ഭാഷ:', newAyah: 'പുതിയ ആയത്ത്', loading: 'ഖുർആൻ ഡാറ്റ ലോഡുചെയ്യുന്നു...', loadingSmall: '(ആദ്യ ലോഡിൽ കുറച്ച് സമയമെടുത്തേക്കാം)' },
-        'ms': { surah: 'Surah', ayah: 'Ayat', langLabel: 'Bahasa Terjemahan:', newAyah: 'Ayat Baru', loading: 'Memuatkan data Al-Quran...', loadingSmall: '(Ini mungkin mengambil sedikit masa pada muat pertama)' },
-        'nl': { surah: 'Soera', ayah: 'Vers', langLabel: 'Taal van vertaling:', newAyah: 'Nieuw Vers', loading: 'Koran data laden...', loadingSmall: '(Kan enige tijd duren bij eerste keer laden)' },
-        'no': { surah: 'Sure', ayah: 'Vers', langLabel: 'Oversettelsesspråk:', newAyah: 'Nytt Vers', loading: 'Laster Korandata...', loadingSmall: '(Kan ta litt tid ved første lasting)' },
-        'pl': { surah: 'Sura', ayah: 'Ajet', langLabel: 'Język tłumaczenia:', newAyah: 'Nowy Ajet', loading: 'Ładowanie danych Koranu...', loadingSmall: '(Może to chwilę potrwać przy pierwszym ładowaniu)' },
-        'ps': { surah: 'سورة', ayah: 'آیت', langLabel: 'د ژباړې ژبه:', newAyah: 'نوی آیت', loading: 'د قرآن معلومات لوډیږي...', loadingSmall: '(لومړي ځل لوډېدو کې ممکن یو څه وخت ونیسي)' },
-        'pt': { surah: 'Surata', ayah: 'Versículo', langLabel: 'Idioma da tradução:', newAyah: 'Novo Versículo', loading: 'Carregando dados do Alcorão...', loadingSmall: '(Pode demorar um pouco no primeiro carregamento)' },
-        'ro': { surah: 'Sura', ayah: 'Verset', langLabel: 'Limba traducerii:', newAyah: 'Verset Nou', loading: 'Se încarcă datele Coranului...', loadingSmall: '(Poate dura ceva timp la prima încărcare)' },
-        'ru': { surah: 'Сура', ayah: 'Аят', langLabel: 'Язык перевода:', newAyah: 'Новый Аят', loading: 'Загрузка данных Корана...', loadingSmall: '(Это может занять некоторое время при первой загрузке)' },
-        'sd': { surah: 'سورة', ayah: 'آيت', langLabel: 'ترجمي جي ٻولي:', newAyah: 'نئون آيت', loading: 'قرآن جو ڊيٽا لوڊ ٿي رهيو آهي...', loadingSmall: '(پهريون دفعو لوڊ ڪرڻ ۾ ڪجهه وقت لڳي سگهي ٿو)' },
-        'so': { surah: 'Suurad', ayah: 'Aayad', langLabel: 'Luuqadda Tarjumaada:', newAyah: 'Aayad Cusub', loading: 'Xogta Qur\'aanka ayaa la soo raranayaa...', loadingSmall: '(Marka hore ee la soo raro waxay qaadan kartaa xoogaa waqti ah)' },
-        'sq': { surah: 'Sure', ayah: 'Ajeti', langLabel: 'Gjuha e përkthimit:', newAyah: 'Ajet i Ri', loading: 'Duke ngarkuar të dhënat e Kuranit...', loadingSmall: '(Mund të marrë pak kohë në ngarkimin e parë)' },
-        'sv': { surah: 'Sura', ayah: 'Vers', langLabel: 'Översättningsspråk:', newAyah: 'Ny Vers', loading: 'Laddar Korandata...', loadingSmall: '(Kan ta lite tid vid första laddningen)' },
-        'sw': { surah: 'Sura', ayah: 'Aya', langLabel: 'Lugha ya Tafsiri:', newAyah: 'Aya Mpya', loading: 'Inapakia data za Quran...', loadingSmall: '(Huenda ikachukua muda kidogo mara ya kwanza kupakia)' },
-        'ta': { surah: 'சூரா', ayah: 'வசனம்', langLabel: 'மொழிபெயர்ப்பு மொழி:', newAyah: 'புதிய வசனம்', loading: 'குர்ஆன் தரவு ஏற்றப்படுகிறது...', loadingSmall: '(முதல்முறை ஏற்ற சிறிது நேரம் ஆகலாம்)' },
-        'tg': { surah: 'Сура', ayah: 'Оят', langLabel: 'Забони тарҷума:', newAyah: 'Ояти Нав', loading: 'Боргирии маълумоти Қуръон...', loadingSmall: '(Ҳангоми бори аввал боргирӣ кардан вақти муайянро мегирад)' },
-        'th': { surah: 'ซูเราะฮ์', ayah: 'อายะฮ์', langLabel: 'ภาษาที่แปล:', newAyah: 'อายะฮ์ใหม่', loading: 'กำลังโหลดข้อมูลอัลกุรอาน...', loadingSmall: '(อาจใช้เวลาสักครู่ในการโหลดครั้งแรก)' },
-        'tr': { surah: 'Sûre', ayah: 'Âyet', langLabel: 'Çeviri Dili:', newAyah: 'Yeni Âyet', loading: 'Kur\'an verileri yükleniyor...', loadingSmall: '(İlk yüklemede biraz zaman alabilir)' },
-        'tt': { surah: 'Сүрә', ayah: 'Аять', langLabel: 'Тәрҗемә теле:', newAyah: 'Яңа Аять', loading: 'Коръән мәгълүматлары йөкләнә...', loadingSmall: '(Беренче тапкыр йөкләгәндә бераз вакыт кирәк булырга мөмкин)' },
-        'ug': { surah: 'سۈرە', ayah: 'ئايەت', langLabel: 'تەرجىمە تىلى:', newAyah: 'يېڭى ئايەت', loading: 'قۇرئان مەلۇماتلىرى يۈكلەۋاتىدۇ...', loadingSmall: '(تۇنجى قېتىم يۈكلىگەندە بىر ئاز ۋاقىت كېتىشى مۇمكىن)' },
-        'ur': { surah: 'سورۃ', ayah: 'آیت', langLabel: 'ترجمہ کی زبان:', newAyah: 'نئی آیت', loading: 'قرآن کا ڈیٹا لوڈ ہو رہا ہے۔..', loadingSmall: '(پہلی بار لوڈ ہونے میں کچھ وقت لگ سکتا ہے)' },
-        'uz': { surah: 'Sura', ayah: 'Oyat', langLabel: 'Tarjima tili:', newAyah: 'Yangi Oyat', loading: 'Qur\'on ma\'lumotlari yuklanmoqda...', loadingSmall: '(Birinchi yuklashda biroz vaqt ketishi mumkin)' },
-        'zh': { surah: '章', ayah: '节', langLabel: '翻译语言:', newAyah: '新经文', loading: '古兰经数据加载中...', loadingSmall: '(首次加载可能需要一些时间)' }
+    const rtlLanguages = ['ar', 'fa', 'ur', 'dv', 'he', 'sd', 'ps', 'ku', 'ug', 'yi'];
+    
+    // ВАЖНО: ЗАПОЛНИТЕ ЭТОТ ОБЪЕКТ СТРОКАМИ ДЛЯ РАЗНЫХ ЯЗЫКОВ
+    const localizedStrings = { 
+        'ru': { surah: 'Сура', ayah: 'Аят', langLabel: 'Язык перевода:', newAyah: 'Новый Аят', loading: 'Загрузка данных Корана...', loadingSmall: '(Это может занять некоторое время)', loadingError: 'Не удалось загрузить данные.', loadingFullList: 'Загрузка полного списка аятов...' },
+        'en': { surah: 'Surah', ayah: 'Ayah', langLabel: 'Translation Language:', newAyah: 'New Ayah', loading: 'Loading Quran data...', loadingSmall: '(This may take some time)', loadingError: 'Failed to load data.', loadingFullList: 'Loading full list of ayahs...' },
+        // ... добавьте другие языки
     };
 
+    // ВАЖНО: ЗАПОЛНИТЕ ЭТОТ МАССИВ ВАШИМИ 10 АЯТАМИ И ПЕРЕВОДАМИ
+    const placeholderAyahs = [
+        {
+            surah_number: 2, ayah_number: 255, surah_name_ar: "البقرة", surah_name_en: "Al-Baqara",
+            arabic_text: "ٱللَّهُ لَآ إِلَـٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ ۚ لَا تَأْخُذُهُۥ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُۥ مَا فِى ٱلسَّمَـٰوَٰتِ وَمَا فِى ٱلْأَرْضِ ۗ مَن ذَا ٱلَّذِى يَشْفَعُ عِندَهُۥٓ إِلَّا بِإِذْنِهِۦ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَىْءٍ مِّنْ عِلْمِهِۦٓ إِلَّا بِمَا شَآءَ ۚ وَسِعَ كُرْسِيُّهُ ٱلسَّمَـٰوَٰتِ وَٱلْأَرْضَ ۖ وَلَا يَـُٔودُهُۥ حِفْظُهُمَا ۚ وَهُوَ ٱلْعَلِىُّ ٱلْعَظِيمُ",
+            translations: {
+                "translation-ru-kuliev-alsaadi": "Аллах — нет божества, кроме Него, Живого, Поддерживающего жизнь. Им не овладевают ни дремота, ни сон. Ему принадлежит то, что на небесах, и то, что на земле. Кто станет заступаться перед Ним без Его дозволения? Он знает их будущее и прошлое. Они постигают из Его знания только то, что Он пожелает. Его Престол объемлет небеса и землю, и не тяготит Его оберегание их. Он — Возвышенный, Великий.",
+                "translation-en-sahih": "Allah - there is no deity except Him, the Ever-Living, the Sustainer of all existence...",
+            }
+        },
+        
+    ];
+
+    function displayPlaceholderAyah() {
+        if (placeholderAyahs.length === 0) {
+            ayahDisplayElement.style.display = 'none';
+            loadingIndicator.style.display = 'block';
+            return;
+        }
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * placeholderAyahs.length);
+        } while (placeholderAyahs.length > 1 && randomIndex === placeholderAyahIndex);
+        placeholderAyahIndex = randomIndex;
+        
+        currentVerse = placeholderAyahs[randomIndex];
+
+        arabicTextElement.textContent = currentVerse.arabic_text;
+        updateAyahInfo(); 
+        updateTranslationDisplay(); 
+
+        ayahDisplayElement.style.display = 'block';
+        loadingIndicator.style.display = 'none'; 
+    }
 
     async function loadData() {
-        try {
+        const langCodeForLoading = (localStorage.getItem('selectedLanguage') || 'ru-').split('-')[1] || 'ru';
+        const locForLoading = localizedStrings[langCodeForLoading] || localizedStrings['ru'];
+
+        if (!mainDataLoaded) {
+            const loadingP = loadingIndicator.querySelector('p:first-child');
+            if(loadingP) loadingP.innerHTML = `${locForLoading.loadingFullList || 'Загрузка полного списка аятов...'} <i class="fas fa-spinner fa-spin"></i>`;
             loadingIndicator.style.display = 'block';
-            ayahDisplayElement.style.display = 'none';
-            // ***** ВАЖНО: Укажите здесь правильное имя вашего JSON файла *****
-            const response = await fetch('quran_data.json'); 
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        try {
+            // ВАЖНО: Укажите здесь правильный путь к вашему основному JSON файлу
+            // Например, если он в корне репозитория и называется 'quran_main_data.json'
+            const response = await fetch('quran_data.json'); // ИЛИ ваш URL с Google Drive, если вы его используете
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status}. Response: ${errorText.substring(0,100)}...`);
+            }
             
             const data = await response.json();
-            quranData = data.verses;
-            translationOptions = data.translation_options;
             
-            populateLanguageSelector();
+            quranData = data.verses || [];
+            translationOptions = data.translation_options || {};
+            mainDataLoaded = true; 
+            
+            populateLanguageSelector(); 
             const savedLang = localStorage.getItem('selectedLanguage');
             if (savedLang && translationOptions[savedLang]) {
                 languageSelectElement.value = savedLang;
@@ -87,24 +94,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 languageSelectElement.value = Object.keys(translationOptions)[0];
             }
             
-            applyLocalization(); // Применяем локализацию при загрузке
-            displayRandomVerse();
-
-            loadingIndicator.style.display = 'none';
+            displayRandomVerseFromMainData(); 
+            loadingIndicator.style.display = 'none'; 
             ayahDisplayElement.style.display = 'block';
 
         } catch (error) {
             console.error("Failed to load Quran data:", error);
+            mainDataLoaded = false; 
             const langCode = (localStorage.getItem('selectedLanguage') || 'ru-').split('-')[1] || 'ru';
             const loc = localizedStrings[langCode] || localizedStrings['ru'];
-            loadingIndicator.innerHTML = `<p>${loc.loadingError || 'Не удалось загрузить данные. Пожалуйста, проверьте консоль или попробуйте обновить страницу.'}</p>`;
+            let errorMessage = loc.loadingError || 'Не удалось загрузить данные.';
+            if (error.message) {
+                errorMessage += ` Детали: ${error.message.substring(0, 150)}`;
+            }
+            loadingIndicator.innerHTML = `<p>${errorMessage}</p>`;
             loadingIndicator.style.color = 'red';
+            loadingIndicator.style.display = 'block'; 
+            if (!currentVerse || !placeholderAyahs.includes(currentVerse)) {
+                 ayahDisplayElement.style.display = 'none';
+            }
+        }
+    }
+
+    function displayRandomVerseFromMainData() {
+        if (!quranData || quranData.length === 0) {
+            displayPlaceholderAyah(); 
+            return;
+        }
+        mainDataLoaded = true; 
+        const randomIndex = Math.floor(Math.random() * quranData.length);
+        currentVerse = quranData[randomIndex];
+
+        arabicTextElement.textContent = currentVerse.arabic_text;
+        updateAyahInfo();
+        updateTranslationDisplay();
+        ayahDisplayElement.style.display = 'block';
+    }
+
+    function displayRandomVerse() {
+        if (mainDataLoaded && quranData && quranData.length > 0) {
+            displayRandomVerseFromMainData();
+        } else {
+            displayPlaceholderAyah();
         }
     }
 
     function populateLanguageSelector() {
-        const sortedOptions = Object.entries(translationOptions)
-                                    .sort(([,a],[,b]) => a.localeCompare(b));
+        languageSelectElement.innerHTML = ''; 
+        
+        const currentOptions = mainDataLoaded ? translationOptions : getPlaceholderTranslationOptions();
+        const sortedOptions = Object.entries(currentOptions)
+                                    .sort(([,a],[,b]) => typeof a === 'string' && typeof b === 'string' ? a.localeCompare(b) : 0);
         
         sortedOptions.forEach(([key, prettyName]) => {
             const option = document.createElement('option');
@@ -112,52 +152,74 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = prettyName;
             languageSelectElement.appendChild(option);
         });
+        
+        const savedLang = localStorage.getItem('selectedLanguage');
+        if (savedLang && currentOptions[savedLang]) {
+            languageSelectElement.value = savedLang;
+        } else if (sortedOptions.length > 0) {
+            languageSelectElement.value = sortedOptions[0][0]; 
+        }
+        if(currentVerse) updateTranslationDisplay(); 
+    }
+
+    function getPlaceholderTranslationOptions() {
+        const opts = {};
+        if (placeholderAyahs.length > 0 && placeholderAyahs[0].translations) {
+            for (const key in placeholderAyahs[0].translations) {
+                if (translationOptions && translationOptions[key]) {
+                    opts[key] = translationOptions[key];
+                } else { 
+                    const parts = key.split('-');
+                    const langPart = parts[1] ? parts[1].toUpperCase() : 'LANG';
+                    const authorPart = parts.slice(2).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' & ');
+                    opts[key] = `${langPart} (${authorPart || 'Default'})`;
+                }
+            }
+        }
+        if (!opts["translation-ru-kuliev-alsaadi"]) opts["translation-ru-kuliev-alsaadi"] = "Русский (Кулиев & ас-Саади)";
+        if (!opts["translation-en-sahih"]) opts["translation-en-sahih"] = "English (Sahih Int.)";
+        return opts;
     }
     
     function applyLocalization() {
-        const selectedLanguageKey = languageSelectElement.value || Object.keys(translationOptions)[0];
+        const selectedLanguageKey = languageSelectElement.value || 
+                                  (mainDataLoaded && Object.keys(translationOptions).length > 0 ? Object.keys(translationOptions)[0] : 
+                                  'translation-ru-kuliev-alsaadi'); 
         const langCode = selectedLanguageKey.split('-')[1] || 'ru';
-        const loc = localizedStrings[langCode] || localizedStrings['ru']; // Fallback to Russian
+        const loc = localizedStrings[langCode] || localizedStrings['ru'];
 
-        if (languageLabel) languageLabel.innerHTML = `<i class="fas fa-language"></i> ${loc.langLabel}`;
-        if (newAyahButton) newAyahButton.innerHTML = `<i class="fas fa-sync-alt"></i> ${loc.newAyah}`;
+        if (languageLabel) languageLabel.innerHTML = `<i class="fas fa-language"></i> ${loc.langLabel || 'Язык перевода:'}`;
+        if (newAyahButton) newAyahButton.innerHTML = `<i class="fas fa-sync-alt"></i> ${loc.newAyah || 'Новый Аят'}`;
         
-        // Локализация текста загрузки, если он еще виден
         const loadingP = loadingIndicator.querySelector('p:first-child');
-        const loadingSmall = loadingIndicator.querySelector('p small');
-        if (loadingP) loadingP.innerHTML = `${loc.loading} <i class="fas fa-spinner fa-spin"></i>`;
-        if (loadingSmall) loadingSmall.textContent = `(${loc.loadingSmall})`;
+        if (!mainDataLoaded && loadingP && loc.loadingFullList) {
+             loadingP.innerHTML = `${loc.loadingFullList} <i class="fas fa-spinner fa-spin"></i>`;
+        } else if (!mainDataLoaded && loadingP && loc.loading) {
+            loadingP.innerHTML = `${loc.loading} <i class="fas fa-spinner fa-spin"></i>`;
+        }
 
-        // Обновляем информацию об аяте, если он уже отображен
+        const loadingSmall = loadingIndicator.querySelector('p small');
+        if (loadingSmall && loc.loadingSmall) loadingSmall.textContent = `(${loc.loadingSmall})`;
+
         if (currentVerse) updateAyahInfo();
     }
 
-
     function updateAyahInfo() {
         if (!currentVerse) return;
-
-        const selectedLanguageKey = languageSelectElement.value;
+        const selectedLanguageKey = languageSelectElement.value || 
+                                  (mainDataLoaded && Object.keys(translationOptions).length > 0 ? Object.keys(translationOptions)[0] : 
+                                  'translation-ru-kuliev-alsaadi');
         const langCode = selectedLanguageKey.split('-')[1] || 'ru'; 
         const loc = localizedStrings[langCode] || localizedStrings['ru'];
-
-        ayahInfoElement.textContent = `${loc.surah} ${currentVerse.surah_name_ar} (${currentVerse.surah_name_en}) | ${loc.ayah} ${currentVerse.surah_number}:${currentVerse.ayah_number}`;
-    }
-
-    function displayRandomVerse() {
-        if (quranData.length === 0) return;
-
-        const randomIndex = Math.floor(Math.random() * quranData.length);
-        currentVerse = quranData[randomIndex];
-
-        arabicTextElement.textContent = currentVerse.arabic_text;
-        updateAyahInfo(); 
-        updateTranslationDisplay();
+        ayahInfoElement.textContent = `${loc.surah || 'Сура'} ${currentVerse.surah_name_ar} (${currentVerse.surah_name_en}) | ${loc.ayah || 'Аят'} ${currentVerse.surah_number}:${currentVerse.ayah_number}`;
     }
 
     function updateTranslationDisplay() {
         if (!currentVerse) return;
-
-        const selectedLanguageKey = languageSelectElement.value;
+        const selectedLanguageKey = languageSelectElement.value || 
+                                  (mainDataLoaded && Object.keys(translationOptions).length > 0 ? Object.keys(translationOptions)[0] : 
+                                  (!mainDataLoaded && placeholderAyahs.length > 0 && placeholderAyahs[placeholderAyahIndex].translations ? Object.keys(placeholderAyahs[placeholderAyahIndex].translations)[0] : 'translation-ru-kuliev-alsaadi'));
+        
         localStorage.setItem('selectedLanguage', selectedLanguageKey); 
         
         const translation = currentVerse.translations[selectedLanguageKey];
@@ -167,40 +229,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const langCodeForDir = selectedLanguageKey.split('-')[1];
             translationTextElement.setAttribute('dir', rtlLanguages.includes(langCodeForDir) ? 'rtl' : 'ltr');
         } else {
-            translationTextElement.textContent = "Перевод для этого аята на выбранный язык отсутствует.";
+            translationTextElement.textContent = mainDataLoaded ? (localizedStrings[selectedLanguageKey.split('-')[1]]?.loadingError || "Перевод отсутствует.") : "";
             translationTextElement.setAttribute('dir', 'ltr');
         }
-        applyLocalization(); // Обновляем локализацию, т.к. язык мог измениться
+         if (currentVerse) updateAyahInfo();
     }
-
-    // Theme Toggle Functionality
+    
     function applyTheme(theme) {
-        if (theme === 'dark') {
-            document.body.classList.add('dark-theme');
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-            themeToggleButton.setAttribute('aria-label', 'Переключить на светлую тему'); // Можно тоже локализовать
-        } else {
-            document.body.classList.remove('dark-theme');
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-            themeToggleButton.setAttribute('aria-label', 'Переключить на темную тему'); // Можно тоже локализовать
-        }
+        const isDark = theme === 'dark';
+        document.body.classList.toggle('dark-theme', isDark);
+        themeIcon.classList.toggle('fa-sun', isDark);
+        themeIcon.classList.toggle('fa-moon', !isDark);
+        themeToggleButton.setAttribute('aria-label', isDark ? 'Переключить на светлую тему' : 'Переключить на темную тему');
         localStorage.setItem('theme', theme);
     }
 
+    // Инициализация
+    populateLanguageSelector(); 
+    displayPlaceholderAyah(); 
+    applyLocalization(); 
+    
+    loadData(); 
+
+    newAyahButton.addEventListener('click', displayRandomVerse);
+    languageSelectElement.addEventListener('change', () => {
+        updateTranslationDisplay(); 
+        applyLocalization(); 
+    });
     themeToggleButton.addEventListener('click', () => {
         const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
         applyTheme(currentTheme === 'light' ? 'dark' : 'light');
     });
-
     const preferredColorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     const savedTheme = localStorage.getItem('theme') || preferredColorScheme;
     applyTheme(savedTheme);
-
-
-    newAyahButton.addEventListener('click', displayRandomVerse);
-    languageSelectElement.addEventListener('change', updateTranslationDisplay);
-
-    loadData();
 });
