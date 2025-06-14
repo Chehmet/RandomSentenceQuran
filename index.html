@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Случайный Аят из Корана</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Lato:wght@300;400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    <!-- Для иконки (Font Awesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="site-header">
+            <h1><i class="fas fa-quran"></i> آية اليوم - Ayah of the Day</h1>
+        </header>
+
+        <div class="controls">
+            <div class="language-selector-wrapper">
+                <label for="language-select"><i class="fas fa-language"></i> Язык перевода:</label>
+                <select id="language-select"></select>
+            </div>
+            <button id="new-ayah-button"><i class="fas fa-sync-alt"></i> Новый Аят</button>
+        </div>
+
+        <div id="loading-indicator" class="loading">
+            <p>Загрузка данных Корана... <i class="fas fa-spinner fa-spin"></i></p>
+            <p><small>(Это может занять некоторое время при первой загрузке)</small></p>
+        </div>
+        
+        <main id="ayah-display" class="ayah-card" style="display: none;">
+            <div id="arabic-text-container">
+                <p id="arabic-text" dir="rtl"></p>
+            </div>
+            <p id="ayah-info"></p>
+            <hr class="divider">
+            <div id="translation-container">
+                <p id="translation-text"></p>
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <p>Создано с <i class="fas fa-heart" style="color: #e91e63;"></i>. Данные из датасета <a href="https://huggingface.co/datasets/nazimali/quran" target="_blank">nazimali/quran</a>.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

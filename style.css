@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Lato:wght@300;400;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Scheherazade+New:wght@400;700&display=swap');
+
+:root {
+    --primary-bg: #f4f7f6; /* Светлый фон */
+    --card-bg: #ffffff;    /* Фон карточки */
+    --text-color: #333333; /* Основной цвет текста */
+    --arabic-text-color: #2c3e50; /* Цвет арабского текста */
+    --accent-color: #28a745; /* Зеленый акцент, как в исламской тематике */
+    --accent-color-hover: #218838;
+    --border-color: #e0e0e0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+
+    --font-arabic: 'Scheherazade New', 'Amiri Quran', 'KFGQPC Uthman Taha Naskh', serif; /* Список предпочтительных шрифтов */
+    --font-translation: 'Merriweather', serif;
+    --font-ui: 'Lato', sans-serif;
+}
+
+body {
+    font-family: var(--font-ui);
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Чтобы при длинном контенте не было отступа сверху */
+    min-height: 100vh;
+    line-height: 1.6;
+    direction: ltr; /* Общее направление страницы */
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    padding: 20px;
+    background-color: var(--card-bg); /* Можно сделать основной контейнер тоже карточкой */
+    border-radius: 12px;
+    box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.site-header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--accent-color);
+}
+
+.site-header h1 {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 2.2em;
+    margin: 0;
+}
+
+.site-header h1 .fa-quran {
+    margin-right: 10px;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 15px; /* Промежуток между элементами управления */
+}
+
+.language-selector-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#language-select, #new-ayah-button {
+    padding: 12px 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+}
+
+#language-select {
+    min-width: 200px; /* Чтобы селектор не был слишком узким */
+}
+
+#new-ayah-button {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+#new-ayah-button:hover {
+    background-color: var(--accent-color-hover);
+    border-color: var(--accent-color-hover);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+#new-ayah-button .fa-sync-alt {
+    margin-right: 8px;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 1.2em;
+    color: #777;
+}
+
+.loading .fa-spinner {
+    margin-left: 10px;
+    color: var(--accent-color);
+}
+
+.ayah-card {
+    background-color: var(--card-bg); /* Теперь основной контейнер белый, карточку можно сделать с легким оттенком или такой же */
+    /* border: 1px solid var(--border-color); */ /* Убрал, т.к. контейнер уже имеет тень */
+    border-radius: 12px;
+    padding: 25px 30px;
+    /* box-shadow: 0 6px 15px var(--shadow-color); */ /* Тень уже на .container */
+    margin-top: 20px;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#arabic-text-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#arabic-text {
+    font-family: var(--font-arabic);
+    font-size: 2.8em; /* Крупный размер для арабского текста */
+    line-height: 1.8; /* Увеличиваем межстрочный интервал для арабского */
+    color: var(--arabic-text-color);
+    direction: rtl; /* Важно для арабского текста */
+    margin-bottom: 10px; /* Отступ после арабского текста */
+    font-weight: 700; /* Некоторые шрифты лучше смотрятся с bold */
+}
+
+#ayah-info {
+    text-align: center;
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 20px;
+    font-family: var(--font-ui);
+    font-weight: 400;
+}
+
+.divider {
+    border: none;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 25px 0;
+}
+
+#translation-container {
+    margin-top: 20px;
+}
+
+#translation-text {
+    font-family: var(--font-translation);
+    font-size: 1.2em; /* Размер текста перевода */
+    line-height: 1.7;
+    color: var(--text-color);
+    text-align: left; /* Для большинства языков перевода */
+}
+
+/* Стили для языков с письмом справа налево в переводе */
+#translation-text[dir="rtl"] {
+    text-align: right;
+}
+
+
+.site-footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9em;
+    color: #777;
+}
+
+.site-footer a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    .container {
+        padding: 15px;
+    }
+    .controls {
+        flex-direction: column;
+        align-items: stretch; /* Растягиваем элементы управления на всю ширину */
+    }
+    #language-select, #new-ayah-button {
+        width: 100%;
+        box-sizing: border-box; /* Чтобы padding не увеличивал общую ширину */
+    }
+    .site-header h1 {
+        font-size: 1.8em;
+    }
+    #arabic-text {
+        font-size: 2.2em;
+    }
+    #translation-text {
+        font-size: 1.1em;
+    }
+}
