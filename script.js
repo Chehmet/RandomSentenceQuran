@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingIndicator.style.display = 'block';
             ayahDisplayElement.style.display = 'none';
 
-            const response = await fetch('quran_data.json');
+            const response = await fetch('./quran_data.json');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
