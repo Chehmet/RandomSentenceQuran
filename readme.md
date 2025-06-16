@@ -12,4 +12,4 @@ You should wait 2-6 second inn the beginning for data to be downloaded on your m
 ## Dark/Light theme
 ![](screenshots/p5.jpg)
 
-In case of any problems, feel free to text me
+In case of any problems, feel free to text me [in telegram](https://t.me/Chehmet)
