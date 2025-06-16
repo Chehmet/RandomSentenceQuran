@@ -1,5 +1,7 @@
 # Website with random verse from Quran
 You should wait 2-6 second inn the beginning for data to be downloaded on your machine.
+
+## Available
 ## Main page:
 ![](screenshots/p1.jpg)
 ## Context of ayah
