@@ -1,4 +1,4 @@
-# Website with random verse from Quran
+# Website with random verse from Quran with context
 You should wait 2-6 second inn the beginning for data to be downloaded on your machine.
 
 ## [Available](https://chehmet.github.io/RandomSentenceQuran/)
