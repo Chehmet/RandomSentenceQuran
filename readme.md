@@ -1,7 +1,7 @@
 # Website with random verse from Quran with context
 You should wait 2-6 second in the beginning for data to be downloaded on your machine.
 
-You can see translation on
+You can see translation on 36 languages
 
 ## [Available](https://chehmet.github.io/RandomSentenceQuran/)
 ## Main page:
