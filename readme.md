@@ -1,5 +1,5 @@
 # Website with random verse from Quran with context
-You should wait 2-6 second in the beginning for data to be downloaded on your machine.
+You should wait 2-15 second in the beginning for data to be downloaded on your machine.
 
 You can see tafseer on 36 languages, context for each ayah and choose favourite ones to read them whenever you want.
 
